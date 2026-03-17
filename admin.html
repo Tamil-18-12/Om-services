@@ -7,8 +7,14 @@
     <title>Admin Dashboard | OM Service</title>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&display=swap"
         rel="stylesheet">
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&display=swap" rel="stylesheet">
+
+    <!-- Bootstrap & Icons -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+
+    <!-- Custom CSS (Shared) -->
+    <link rel="stylesheet" href="css/style.css">
 
     <style>
         :root {
@@ -320,6 +326,1641 @@
             font-size: 0.8em;
             color: rgba(255, 255, 255, 0.5);
         }
+
+        /* --- Mobile Responsive Admin --- */
+        @media (max-width: 768px) {
+            .sidebar {
+                width: 100%;
+                height: auto;
+                position: relative;
+                border-right: none;
+                border-bottom: 1px solid rgba(252, 220, 59, 0.1);
+            }
+
+            .main-content {
+                margin-left: 0;
+                width: 100%;
+                padding: 15px;
+            }
+
+            .nav-menu {
+                display: flex;
+                overflow-x: auto;
+                /* Horizontal scroll menu for mobile */
+                padding: 10px;
+                gap: 10px;
+            }
+
+            .nav-item {
+                white-space: nowrap;
+            }
+
+            .nav-link {
+                padding: 8px 15px;
+                border-left: none;
+                border-bottom: 3px solid transparent;
+                border-radius: 8px;
+                background: rgba(255, 255, 255, 0.05);
+            }
+
+            .nav-link.active {
+                border-bottom-color: var(--gold);
+                border-left: none;
+            }
+
+            .stats-grid {
+                grid-template-columns: 1fr;
+                /* Stack cards */
+            }
+
+            .top-action-bar {
+                flex-direction: column;
+                gap: 15px;
+            }
+
+            .search-container {
+                width: 100%;
+            }
+
+            .action-buttons {
+                width: 100%;
+                display: flex;
+                justify-content: space-between;
+            }
+
+            .action-buttons a {
+                margin-left: 0;
+                font-size: 0.8rem;
+                padding: 8px 12px;
+            }
+
+            /* Table Scrolling */
+            .table-wrap {
+                overflow-x: auto !important;
+            }
+        }
+
+        /* ========== MANAGE CONTENT STYLES ========== */
+
+        /* Page Tab Bar */
+        .mc-page-tabs {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .mc-tab {
+            background: var(--card-bg);
+            border: 1px solid rgba(252, 220, 59, 0.15);
+            color: rgba(255, 255, 255, 0.6);
+            padding: 10px 18px;
+            border-radius: 25px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.25s;
+            font-family: 'Outfit', sans-serif;
+            letter-spacing: 0.3px;
+        }
+
+        .mc-tab:hover {
+            border-color: var(--gold);
+            color: var(--gold);
+            background: rgba(252, 220, 59, 0.05);
+        }
+
+        .mc-tab.active {
+            background: var(--gold);
+            color: #000;
+            border-color: var(--gold);
+            box-shadow: 0 4px 15px rgba(252, 220, 59, 0.3);
+        }
+
+        /* Panel Wrapper */
+        .mc-panel-wrap {
+            background: var(--card-bg);
+            border: 1px solid rgba(252, 220, 59, 0.1);
+            border-radius: 16px;
+            overflow: hidden;
+        }
+
+        .mc-panel {
+            display: none;
+            padding: 28px;
+            animation: fadeIn 0.35s ease;
+        }
+
+        .mc-panel.active {
+            display: block;
+        }
+
+        /* Section Header */
+        .mc-section-header {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 1.05rem;
+            font-weight: 700;
+            color: white;
+            padding-bottom: 18px;
+            margin-bottom: 22px;
+            border-bottom: 1px solid rgba(252, 220, 59, 0.1);
+        }
+
+        .mc-static-badge {
+            margin-left: auto;
+            background: rgba(100, 100, 255, 0.15);
+            color: #8888ff;
+            border: 1px solid rgba(100, 100, 255, 0.3);
+            padding: 3px 12px;
+            border-radius: 20px;
+            font-size: 0.72rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .mc-dynamic-badge {
+            margin-left: auto;
+            background: rgba(50, 200, 100, 0.12);
+            color: #50e080;
+            border: 1px solid rgba(50, 200, 100, 0.3);
+            padding: 3px 12px;
+            border-radius: 20px;
+            font-size: 0.72rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        /* Preview Grid for Images */
+        .mc-preview-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+            gap: 20px;
+        }
+
+        .mc-content-block {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.07);
+            border-radius: 12px;
+            overflow: hidden;
+        }
+
+        .mc-block-label {
+            background: rgba(0, 0, 0, 0.3);
+            color: rgba(255, 255, 255, 0.6);
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            padding: 8px 14px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .mc-hero-preview {
+            padding: 14px;
+        }
+
+        /* Clickable Image Wrapper */
+        .mc-img-wrap {
+            position: relative;
+            cursor: pointer;
+            overflow: hidden;
+            border-radius: 0;
+            display: block;
+            min-height: 160px;
+            background: #0f0f0f;
+        }
+
+        .mc-img-wrap:hover .mc-img-overlay {
+            opacity: 1;
+        }
+
+        .mc-img-wrap:hover img {
+            transform: scale(1.04);
+            filter: brightness(0.65);
+        }
+
+        .mc-preview-img {
+            width: 100%;
+            height: 180px;
+            object-fit: cover;
+            display: block;
+            transition: transform 0.35s, filter 0.35s;
+        }
+
+        .mc-img-overlay {
+            position: absolute;
+            inset: 0;
+            background: rgba(252, 220, 59, 0.15);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            transition: opacity 0.3s;
+            font-size: 1.6rem;
+            color: var(--gold);
+        }
+
+        /* Text Info Block */
+        .mc-text-info {
+            padding: 0 4px 8px;
+        }
+
+        .mc-text-block {
+            background: rgba(0, 0, 0, 0.2);
+            border: 1px solid rgba(255, 255, 255, 0.06);
+            border-radius: 10px;
+            padding: 16px 20px;
+        }
+
+        .mc-text-row {
+            color: rgba(255, 255, 255, 0.75);
+            font-size: 0.9rem;
+            padding: 7px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .mc-text-row:last-child {
+            border-bottom: none;
+        }
+
+        /* Dynamic Service Editor */
+        .mc-service-editor {
+            background: rgba(0, 0, 0, 0.15);
+            border: 1px solid rgba(252, 220, 59, 0.08);
+            border-radius: 16px;
+            padding: 24px;
+        }
+
+        .mc-editor-fields {
+            background: rgba(0, 0, 0, 0.2);
+            border: 1px solid rgba(255, 255, 255, 0.06);
+            border-radius: 12px;
+            padding: 20px;
+        }
+
+        .mc-field-label {
+            display: block;
+            color: rgba(255, 255, 255, 0.6);
+            font-size: 0.8rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 8px;
+        }
+
+        .mc-input {
+            width: 100%;
+            background: #19021C;
+            border: 1px solid rgba(252, 220, 59, 0.2);
+            color: white;
+            padding: 10px 14px;
+            border-radius: 8px;
+            outline: none;
+            font-size: 0.9rem;
+            font-family: 'Outfit', sans-serif;
+            transition: border-color 0.25s;
+        }
+
+        .mc-input:focus {
+            border-color: var(--gold);
+            box-shadow: 0 0 8px rgba(252, 220, 59, 0.15);
+        }
+
+        .mc-gallery-label {
+            color: white;
+            font-weight: 700;
+            font-size: 0.95rem;
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        /* Section divider for Package Cards block */
+        .mc-pkg-section-divider {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin: 28px 0 18px;
+            padding: 14px 20px;
+            background: linear-gradient(90deg, rgba(252, 220, 59, 0.08), transparent);
+            border-left: 3px solid #fcdc3b;
+            border-radius: 0 10px 10px 0;
+        }
+
+        .mc-pkg-section-divider .section-icon {
+            width: 38px;
+            height: 38px;
+            background: rgba(252, 220, 59, 0.12);
+            border: 1px solid rgba(252, 220, 59, 0.3);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #fcdc3b;
+            font-size: 1rem;
+            flex-shrink: 0;
+        }
+
+        .mc-pkg-section-divider .section-text .title {
+            font-size: 0.95rem;
+            font-weight: 700;
+            color: #fcdc3b;
+            line-height: 1.2;
+        }
+
+        .mc-pkg-section-divider .section-text .sub {
+            font-size: 0.78rem;
+            color: rgba(255, 255, 255, 0.4);
+            margin-top: 2px;
+        }
+
+        /* Service Image Gallery */
+        .mc-image-gallery {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 14px;
+            min-height: 100px;
+            background: rgba(0, 0, 0, 0.2);
+            border: 1px solid rgba(255, 255, 255, 0.06);
+            border-radius: 12px;
+            padding: 16px;
+            margin-bottom: 14px;
+        }
+
+        .mc-gallery-loading {
+            color: rgba(255, 255, 255, 0.4);
+            font-size: 0.9rem;
+            display: flex;
+            align-items: center;
+            padding: 10px;
+        }
+
+        .mc-gallery-empty {
+            color: rgba(255, 255, 255, 0.3);
+            font-size: 0.9rem;
+            font-style: italic;
+            display: flex;
+            align-items: center;
+            padding: 10px;
+        }
+
+        /* Individual Gallery Image Card */
+        .mc-gal-item {
+            position: relative;
+            width: 140px;
+            height: 110px;
+            border-radius: 10px;
+            overflow: hidden;
+            border: 2px solid rgba(255, 255, 255, 0.08);
+            cursor: pointer;
+            flex-shrink: 0;
+            transition: border-color 0.25s, transform 0.25s;
+        }
+
+        .mc-gal-item:hover {
+            border-color: var(--gold);
+            transform: translateY(-3px);
+        }
+
+        .mc-gal-item img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+            transition: filter 0.3s;
+        }
+
+        .mc-gal-item:hover img {
+            filter: brightness(0.55);
+        }
+
+        .mc-gal-overlay {
+            position: absolute;
+            inset: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            opacity: 0;
+            transition: opacity 0.3s;
+            pointer-events: none;
+        }
+
+        .mc-gal-item:hover .mc-gal-overlay {
+            opacity: 1;
+        }
+
+        .mc-gal-overlay span {
+            background: rgba(252, 220, 59, 0.9);
+            color: #000;
+            font-size: 0.65rem;
+            font-weight: 700;
+            padding: 3px 10px;
+            border-radius: 12px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .mc-gal-overlay span.remove-lbl {
+            background: rgba(220, 53, 69, 0.9);
+            color: white;
+        }
+
+        /* Add Image Button */
+        .mc-add-image-btn {
+            display: inline-flex;
+            align-items: center;
+            background: rgba(252, 220, 59, 0.08);
+            border: 2px dashed rgba(252, 220, 59, 0.4);
+            color: var(--gold);
+            padding: 12px 24px;
+            border-radius: 10px;
+            font-size: 0.88rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.25s;
+        }
+
+        .mc-add-image-btn:hover {
+            background: rgba(252, 220, 59, 0.15);
+            border-color: var(--gold);
+        }
+
+        /* Save Button */
+        .mc-save-btn {
+            background: var(--gold);
+            color: #000;
+            border: none;
+            padding: 12px 32px;
+            border-radius: 25px;
+            font-weight: 700;
+            font-size: 0.95rem;
+            font-family: 'Outfit', sans-serif;
+            cursor: pointer;
+            transition: all 0.25s;
+            box-shadow: 0 4px 15px rgba(252, 220, 59, 0.25);
+        }
+
+        .mc-save-btn:hover {
+            background: #fff;
+            box-shadow: 0 6px 20px rgba(252, 220, 59, 0.4);
+            transform: translateY(-2px);
+        }
+
+        .mc-save-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        /* ---- IMAGE CONTEXT MENU ---- */
+        .img-ctx-overlay {
+            visibility: hidden;
+            opacity: 0;
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.65);
+            z-index: 8000;
+            backdrop-filter: blur(3px);
+            transition: opacity 0.25s, visibility 0.25s;
+        }
+
+        .img-ctx-overlay.active {
+            visibility: visible;
+            opacity: 1;
+        }
+
+        .img-ctx-menu {
+            visibility: hidden;
+            opacity: 0;
+            pointer-events: none;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) scale(0.88);
+            background: #1e0321;
+            border: 1px solid rgba(252, 220, 59, 0.3);
+            border-radius: 18px;
+            padding: 22px;
+            z-index: 9000;
+            min-width: 300px;
+            max-width: 340px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.7);
+            transition: transform 0.28s cubic-bezier(0.34, 1.56, 0.64, 1), opacity 0.22s, visibility 0.22s;
+        }
+
+        .img-ctx-menu.active {
+            visibility: visible;
+            opacity: 1;
+            pointer-events: auto;
+            transform: translate(-50%, -50%) scale(1);
+        }
+
+        .img-ctx-title {
+            font-size: 0.75rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: rgba(255, 255, 255, 0.35);
+            text-align: center;
+            margin-bottom: 12px;
+        }
+
+        .img-ctx-preview {
+            width: 100%;
+            height: 130px;
+            border-radius: 10px;
+            overflow: hidden;
+            margin-bottom: 16px;
+            background: #0f0f0f;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .img-ctx-preview img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .img-ctx-btn {
+            display: flex;
+            align-items: center;
+            width: 100%;
+            padding: 12px 18px;
+            border-radius: 10px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            font-family: 'Outfit', sans-serif;
+            cursor: pointer;
+            border: none;
+            margin-bottom: 10px;
+            transition: all 0.22s;
+        }
+
+        .img-ctx-btn:last-child {
+            margin-bottom: 0;
+        }
+
+        .img-ctx-btn.update-btn {
+            background: rgba(252, 220, 59, 0.12);
+            color: var(--gold);
+            border: 1px solid rgba(252, 220, 59, 0.3);
+        }
+
+        .img-ctx-btn.update-btn:hover {
+            background: var(--gold);
+            color: #000;
+        }
+
+        .img-ctx-btn.remove-btn {
+            background: rgba(220, 53, 69, 0.1);
+            color: #ff6b7a;
+            border: 1px solid rgba(220, 53, 69, 0.3);
+        }
+
+        .img-ctx-btn.remove-btn:hover {
+            background: #dc3545;
+            color: white;
+        }
+
+        .img-ctx-btn.cancel-btn {
+            background: rgba(255, 255, 255, 0.05);
+            color: rgba(255, 255, 255, 0.5);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .img-ctx-btn.cancel-btn:hover {
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+        }
+
+        /* Toast */
+        .mc-toast {
+            visibility: hidden;
+            opacity: 0;
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            background: linear-gradient(135deg, #1d6a35, #2a9e53);
+            color: white;
+            padding: 14px 24px;
+            border-radius: 30px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            z-index: 10000;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.4);
+            display: flex;
+            align-items: center;
+            transform: translateY(16px);
+            transition: opacity 0.35s, visibility 0.35s, transform 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+
+        .mc-toast.error {
+            background: linear-gradient(135deg, #6a1d1d, #9e2a2a);
+        }
+
+        .mc-toast.active {
+            visibility: visible;
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* =============================================
+           PACKAGE CARD EDITOR — PREMIUM UI
+        ============================================= */
+        .mc-pkg-list {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            margin-top: 4px;
+        }
+
+        .mc-pkg-card {
+            background: linear-gradient(135deg, rgba(43, 5, 48, 0.7) 0%, rgba(20, 0, 25, 0.9) 100%);
+            border: 1px solid rgba(252, 220, 59, 0.18);
+            border-radius: 16px;
+            padding: 0;
+            overflow: hidden;
+            box-shadow: 0 4px 24px rgba(0, 0, 0, 0.35);
+            transition: border-color 0.25s, box-shadow 0.25s;
+        }
+
+        .mc-pkg-card:hover {
+            border-color: rgba(252, 220, 59, 0.45);
+            box-shadow: 0 6px 32px rgba(252, 220, 59, 0.08);
+        }
+
+        /* Gold header bar per card */
+        .mc-pkg-card-header {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px 18px;
+            background: linear-gradient(90deg, rgba(252, 220, 59, 0.12), transparent);
+            border-bottom: 1px solid rgba(252, 220, 59, 0.12);
+        }
+
+        .mc-pkg-num {
+            font-size: 0.72rem;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            color: #fcdc3b;
+            background: rgba(252, 220, 59, 0.1);
+            border: 1px solid rgba(252, 220, 59, 0.25);
+            border-radius: 20px;
+            padding: 3px 12px;
+        }
+
+        .mc-pkg-card-body {
+            display: flex;
+            gap: 20px;
+            padding: 18px;
+            align-items: flex-start;
+        }
+
+        /* Image column */
+        .mc-pkg-img-wrap {
+            position: relative;
+            width: 140px;
+            height: 110px;
+            flex-shrink: 0;
+            border-radius: 12px;
+            overflow: hidden;
+            border: 2px dashed rgba(252, 220, 59, 0.25);
+            cursor: pointer;
+            background: rgba(0, 0, 0, 0.3);
+            transition: border-color 0.2s;
+        }
+
+        .mc-pkg-img-wrap:hover {
+            border-color: rgba(252, 220, 59, 0.6);
+        }
+
+        .mc-pkg-img-wrap img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: filter 0.25s;
+            display: block;
+        }
+
+        .mc-pkg-img-wrap:hover img {
+            filter: brightness(0.45);
+        }
+
+        .mc-pkg-img-overlay {
+            position: absolute;
+            inset: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 7px;
+            opacity: 0;
+            transition: opacity 0.25s;
+            pointer-events: none;
+        }
+
+        .mc-pkg-img-wrap:hover .mc-pkg-img-overlay {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        .mc-pkg-img-overlay span {
+            background: rgba(252, 220, 59, 0.92);
+            color: #000;
+            font-size: 0.65rem;
+            font-weight: 700;
+            padding: 3px 10px;
+            border-radius: 12px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+        }
+
+        .mc-pkg-img-overlay span.remove-lbl {
+            background: rgba(220, 53, 69, 0.92);
+            color: white;
+        }
+
+        /* Fields grid */
+        .mc-pkg-fields {
+            flex: 1;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+        }
+
+        .mc-pkg-fields .full-width {
+            grid-column: 1 / -1;
+        }
+
+        .mc-pkg-field-group {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .mc-pkg-label {
+            font-size: 0.68rem;
+            font-weight: 700;
+            color: rgba(252, 220, 59, 0.75);
+            text-transform: uppercase;
+            letter-spacing: 0.8px;
+        }
+
+        .mc-pkg-input {
+            width: 100%;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+            color: white;
+            padding: 9px 12px;
+            font-family: 'Outfit', sans-serif;
+            font-size: 0.88rem;
+            outline: none;
+            transition: border-color 0.2s, background 0.2s;
+        }
+
+        .mc-pkg-input::placeholder {
+            color: rgba(255, 255, 255, 0.25);
+        }
+
+        .mc-pkg-input:focus {
+            border-color: rgba(252, 220, 59, 0.6);
+            background: rgba(252, 220, 59, 0.04);
+        }
+
+        textarea.mc-pkg-input {
+            resize: vertical;
+            min-height: 78px;
+        }
+
+        @media (max-width: 600px) {
+            .mc-pkg-card-body {
+                flex-direction: column;
+            }
+
+            .mc-pkg-img-wrap {
+                width: 100%;
+                height: 130px;
+            }
+
+            .mc-pkg-fields {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+
+    <style>
+        /* ======= PAGE EDITOR STYLES ======= */
+        .pe-page-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .pe-page-card {
+            background: var(--card-bg);
+            border: 1px solid rgba(252, 220, 59, 0.15);
+            border-radius: 16px;
+            overflow: hidden;
+            cursor: pointer;
+            transition: all 0.3s;
+            position: relative;
+        }
+
+        .pe-page-card:hover {
+            border-color: var(--gold);
+            transform: translateY(-4px);
+            box-shadow: 0 12px 40px rgba(252, 220, 59, 0.15);
+        }
+
+        .pe-card-thumb {
+            height: 140px;
+            background: linear-gradient(135deg, #1a0020, #2b0530);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .pe-card-thumb img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            position: absolute;
+            inset: 0;
+            opacity: 0.6;
+        }
+
+        .pe-card-thumb-icon {
+            font-size: 2.5rem;
+            color: rgba(252, 220, 59, 0.3);
+            z-index: 1;
+            position: relative;
+        }
+
+        .pe-card-edit-badge {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: var(--gold);
+            color: #000;
+            font-size: 0.65rem;
+            font-weight: 700;
+            padding: 3px 10px;
+            border-radius: 20px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            z-index: 2;
+            opacity: 0;
+            transition: opacity 0.25s;
+        }
+
+        .pe-page-card:hover .pe-card-edit-badge {
+            opacity: 1;
+        }
+
+        .pe-card-body {
+            padding: 16px 18px;
+        }
+
+        .pe-card-name {
+            font-size: 1rem;
+            font-weight: 700;
+            color: white;
+        }
+
+        .pe-card-url {
+            font-size: 0.75rem;
+            color: rgba(252, 220, 59, 0.6);
+            margin-top: 3px;
+        }
+
+        .pe-card-stats {
+            display: flex;
+            gap: 12px;
+            margin-top: 10px;
+        }
+
+        .pe-stat-pill {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            color: rgba(255, 255, 255, 0.5);
+            font-size: 0.72rem;
+            padding: 3px 10px;
+            border-radius: 20px;
+        }
+
+        /* Editor Panel */
+        .pe-editor-panel {
+            background: var(--card-bg);
+            border: 1px solid rgba(252, 220, 59, 0.15);
+            border-radius: 16px;
+            overflow: hidden;
+            animation: fadeIn 0.35s ease;
+        }
+
+        .pe-editor-header {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            padding: 20px 24px;
+            background: rgba(0, 0, 0, 0.3);
+            border-bottom: 1px solid rgba(252, 220, 59, 0.1);
+        }
+
+        .pe-back-btn {
+            background: rgba(255, 255, 255, 0.06);
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            color: rgba(255, 255, 255, 0.7);
+            padding: 8px 16px;
+            border-radius: 8px;
+            font-size: 0.85rem;
+            font-family: 'Outfit', sans-serif;
+            cursor: pointer;
+            transition: 0.2s;
+            white-space: nowrap;
+        }
+
+        .pe-back-btn:hover {
+            background: rgba(255, 255, 255, 0.12);
+            color: white;
+        }
+
+        .pe-editor-title {
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: var(--gold);
+            flex: 1;
+        }
+
+        .pe-view-btn {
+            background: rgba(252, 220, 59, 0.1);
+            border: 1px solid rgba(252, 220, 59, 0.3);
+            color: var(--gold);
+            padding: 8px 16px;
+            border-radius: 8px;
+            font-size: 0.82rem;
+            font-weight: 600;
+            text-decoration: none;
+            transition: 0.2s;
+            white-space: nowrap;
+        }
+
+        .pe-view-btn:hover {
+            background: var(--gold);
+            color: #000;
+        }
+
+        /* Tabs */
+        .pe-tabs {
+            display: flex;
+            gap: 0;
+            border-bottom: 1px solid rgba(252, 220, 59, 0.1);
+            padding: 0 24px;
+            background: rgba(0, 0, 0, 0.2);
+        }
+
+        .pe-tab {
+            background: none;
+            border: none;
+            color: rgba(255, 255, 255, 0.45);
+            padding: 14px 20px;
+            font-size: 0.88rem;
+            font-weight: 600;
+            font-family: 'Outfit', sans-serif;
+            cursor: pointer;
+            border-bottom: 3px solid transparent;
+            margin-bottom: -1px;
+            transition: 0.2s;
+        }
+
+        .pe-tab:hover {
+            color: white;
+        }
+
+        .pe-tab.active {
+            color: var(--gold);
+            border-bottom-color: var(--gold);
+        }
+
+        /* Tab Content */
+        .pe-tab-content {
+            display: none;
+            padding: 28px 24px;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .pe-tab-content.active {
+            display: block;
+        }
+
+        /* Fields */
+        .pe-field-group {
+            margin-bottom: 20px;
+        }
+
+        .pe-label {
+            display: block;
+            font-size: 0.78rem;
+            font-weight: 700;
+            color: rgba(255, 255, 255, 0.5);
+            text-transform: uppercase;
+            letter-spacing: 0.6px;
+            margin-bottom: 8px;
+        }
+
+        .pe-input {
+            width: 100%;
+            background: rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(252, 220, 59, 0.2);
+            color: white;
+            padding: 11px 14px;
+            border-radius: 9px;
+            outline: none;
+            font-size: 0.9rem;
+            font-family: 'Outfit', sans-serif;
+            transition: border-color 0.25s;
+            resize: vertical;
+        }
+
+        .pe-input:focus {
+            border-color: var(--gold);
+            box-shadow: 0 0 8px rgba(252, 220, 59, 0.12);
+        }
+
+        /* Images Section */
+        .pe-images-section {
+            background: rgba(0, 0, 0, 0.2);
+            border: 1px solid rgba(255, 255, 255, 0.06);
+            border-radius: 12px;
+            padding: 18px;
+        }
+
+        .pe-images-header {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 16px;
+            color: white;
+            font-size: 0.92rem;
+        }
+
+        .pe-images-header>div {
+            flex: 1;
+        }
+
+        .pe-hero-img-placeholder {
+            width: 100%;
+            height: 160px;
+            background: rgba(255, 255, 255, 0.03);
+            border: 2px dashed rgba(252, 220, 59, 0.25);
+            border-radius: 12px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .pe-upload-btn {
+            display: inline-flex;
+            align-items: center;
+            background: rgba(252, 220, 59, 0.1);
+            border: 1px solid rgba(252, 220, 59, 0.35);
+            color: var(--gold);
+            padding: 8px 18px;
+            border-radius: 8px;
+            font-size: 0.82rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: 0.2s;
+            font-family: 'Outfit', sans-serif;
+        }
+
+        .pe-upload-btn:hover {
+            background: var(--gold);
+            color: #000;
+        }
+
+        .pe-remove-btn {
+            display: inline-flex;
+            align-items: center;
+            background: rgba(220, 53, 69, 0.1);
+            border: 1px solid rgba(220, 53, 69, 0.3);
+            color: #ff6b7a;
+            padding: 8px 18px;
+            border-radius: 8px;
+            font-size: 0.82rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: 0.2s;
+            font-family: 'Outfit', sans-serif;
+        }
+
+        .pe-remove-btn:hover {
+            background: #dc3545;
+            color: white;
+        }
+
+        /* Gallery Grid */
+        .pe-gallery-grid {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            min-height: 80px;
+        }
+
+        .pe-gal-item {
+            position: relative;
+            width: 120px;
+            height: 90px;
+            border-radius: 10px;
+            overflow: hidden;
+            border: 2px solid rgba(255, 255, 255, 0.08);
+            cursor: pointer;
+            transition: 0.25s;
+        }
+
+        .pe-gal-item:hover {
+            border-color: var(--gold);
+            transform: translateY(-2px);
+        }
+
+        .pe-gal-item img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: filter 0.3s;
+        }
+
+        .pe-gal-item:hover img {
+            filter: brightness(0.5);
+        }
+
+        .pe-gal-remove {
+            position: absolute;
+            inset: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            transition: opacity 0.25s;
+        }
+
+        .pe-gal-item:hover .pe-gal-remove {
+            opacity: 1;
+        }
+
+        .pe-gal-remove span {
+            background: rgba(220, 53, 69, 0.9);
+            color: white;
+            font-size: 0.65rem;
+            font-weight: 700;
+            padding: 3px 10px;
+            border-radius: 12px;
+            text-transform: uppercase;
+        }
+
+        /* Save Button */
+        .pe-save-btn {
+            background: var(--gold);
+            color: #000;
+            border: none;
+            padding: 11px 28px;
+            border-radius: 25px;
+            font-weight: 700;
+            font-size: 0.9rem;
+            font-family: 'Outfit', sans-serif;
+            cursor: pointer;
+            transition: 0.25s;
+            box-shadow: 0 4px 15px rgba(252, 220, 59, 0.25);
+        }
+
+        .pe-save-btn:hover {
+            background: #fff;
+            transform: translateY(-2px);
+        }
+
+        /* Toast */
+        .pe-toast {
+            visibility: hidden;
+            opacity: 0;
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            background: linear-gradient(135deg, #1d6a35, #2a9e53);
+            color: white;
+            padding: 13px 22px;
+            border-radius: 30px;
+            font-size: 0.88rem;
+            font-weight: 600;
+            z-index: 10001;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.4);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transform: translateY(16px);
+            transition: opacity 0.35s, visibility 0.35s, transform 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+
+        .pe-toast.error {
+            background: linear-gradient(135deg, #6a1d1d, #9e2a2a);
+        }
+
+        .pe-toast.active {
+            visibility: visible;
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* Status dots on page cards */
+        .pe-card-status-row {
+            position: absolute;
+            bottom: 10px;
+            left: 12px;
+            display: flex;
+            gap: 5px;
+            z-index: 2;
+        }
+
+        .pe-status-dot {
+            width: 9px;
+            height: 9px;
+            border-radius: 50%;
+            display: inline-block;
+            border: 1.5px solid rgba(0, 0, 0, 0.3);
+        }
+
+        /* ===== SPLIT VIEW PAGE EDITOR (FULL REDESIGN) ===== */
+        .pe-split-view {
+            display: flex;
+            height: 640px;
+            border-top: 1px solid rgba(252, 220, 59, 0.08);
+        }
+
+        /* --- LEFT preview pane --- */
+        .pe-preview-pane {
+            width: 42%;
+            border-right: 1px solid rgba(252, 220, 59, 0.1);
+            display: flex;
+            flex-direction: column;
+            background: #060606;
+            flex-shrink: 0;
+        }
+
+        .pe-preview-label {
+            padding: 8px 14px;
+            font-size: 0.7rem;
+            font-weight: 700;
+            color: rgba(255, 255, 255, 0.3);
+            text-transform: uppercase;
+            letter-spacing: 0.6px;
+            background: rgba(0, 0, 0, 0.6);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            flex-shrink: 0;
+        }
+
+        .pe-jump-nav {
+            display: flex;
+            background: rgba(0, 0, 0, 0.45);
+            border-bottom: 1px solid rgba(252, 220, 59, 0.07);
+            flex-shrink: 0;
+            overflow-x: auto;
+        }
+
+        .pe-jump-btn {
+            background: none;
+            border: none;
+            color: rgba(255, 255, 255, 0.3);
+            font-size: 0.67rem;
+            font-weight: 700;
+            font-family: 'Outfit', sans-serif;
+            padding: 7px 11px;
+            cursor: pointer;
+            white-space: nowrap;
+            border-bottom: 2px solid transparent;
+            transition: all 0.2s;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .pe-jump-btn:hover {
+            color: rgba(252, 220, 59, 0.8);
+        }
+
+        .pe-jump-btn.active {
+            color: #fcdc3b;
+            border-bottom-color: #fcdc3b;
+        }
+
+        .pe-iframe-outer {
+            flex: 1;
+            overflow: hidden;
+            position: relative;
+            background: #0a0010;
+        }
+
+        .pe-iframe-inner {
+            width: 167%;
+            height: 167%;
+            transform: scale(0.6);
+            transform-origin: top left;
+            overflow-y: scroll;
+            overflow-x: hidden;
+        }
+
+        #pe-page-iframe {
+            width: 100%;
+            height: 1000px;
+            border: none;
+            display: block;
+        }
+
+        /* --- RIGHT editor pane --- */
+        .pe-editor-pane {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            min-width: 0;
+            overflow: hidden;
+        }
+
+        .pe-section-sel {
+            display: flex;
+            gap: 0;
+            border-bottom: 1px solid rgba(252, 220, 59, 0.1);
+            background: rgba(0, 0, 0, 0.3);
+            flex-shrink: 0;
+            overflow-x: auto;
+            padding: 0 6px;
+        }
+
+        .pe-sel-btn {
+            background: none;
+            border: none;
+            color: rgba(255, 255, 255, 0.38);
+            font-size: 0.82rem;
+            font-weight: 600;
+            font-family: 'Outfit', sans-serif;
+            padding: 12px 16px;
+            cursor: pointer;
+            border-bottom: 3px solid transparent;
+            margin-bottom: -1px;
+            transition: 0.2s;
+            white-space: nowrap;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .pe-sel-btn:hover {
+            color: white;
+        }
+
+        .pe-sel-btn.active {
+            color: #fcdc3b;
+            border-bottom-color: #fcdc3b;
+        }
+
+        .pe-pane-wrap {
+            flex: 1;
+            overflow-y: auto;
+            padding: 22px;
+        }
+
+        .pe-pane {
+            animation: fadeIn 0.3s ease;
+        }
+
+        .pe-pane-header {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 0.95rem;
+            font-weight: 700;
+            color: white;
+            padding-bottom: 14px;
+            margin-bottom: 18px;
+            border-bottom: 1px solid rgba(252, 220, 59, 0.12);
+        }
+
+        /* --- Package editor cards --- */
+        .pe-pkg-card {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(252, 220, 59, 0.14);
+            border-radius: 14px;
+            padding: 16px;
+            margin-bottom: 14px;
+            transition: border-color 0.2s;
+        }
+
+        .pe-pkg-card:hover {
+            border-color: rgba(252, 220, 59, 0.32);
+        }
+
+        .pe-pkg-card-hd {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 13px;
+        }
+
+        .pe-pkg-num {
+            background: rgba(252, 220, 59, 0.1);
+            border: 1px solid rgba(252, 220, 59, 0.25);
+            color: #fcdc3b;
+            font-size: 0.65rem;
+            font-weight: 800;
+            padding: 3px 10px;
+            border-radius: 20px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .pe-pkg-del {
+            background: rgba(220, 53, 69, 0.1);
+            border: 1px solid rgba(220, 53, 69, 0.25);
+            color: #ff6b7a;
+            font-size: 0.72rem;
+            font-family: 'Outfit', sans-serif;
+            padding: 4px 12px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+
+        .pe-pkg-del:hover {
+            background: #dc3545;
+            color: white;
+        }
+
+        .pe-pkg-body {
+            display: grid;
+            grid-template-columns: 100px 1fr;
+            gap: 12px;
+            align-items: start;
+        }
+
+        .pe-pkg-img {
+            position: relative;
+            width: 100px;
+            height: 78px;
+            border-radius: 9px;
+            overflow: hidden;
+            border: 2px dashed rgba(252, 220, 59, 0.3);
+            cursor: pointer;
+            background: rgba(0, 0, 0, 0.3);
+        }
+
+        .pe-pkg-img img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: filter 0.2s;
+        }
+
+        .pe-pkg-img:hover img {
+            filter: brightness(0.35);
+        }
+
+        .pe-pkg-img-ov {
+            position: absolute;
+            inset: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 4px;
+            opacity: 0;
+            transition: 0.2s;
+        }
+
+        .pe-pkg-img:hover .pe-pkg-img-ov {
+            opacity: 1;
+        }
+
+        .pe-pkg-img-ov span {
+            background: rgba(252, 220, 59, 0.9);
+            color: #000;
+            font-size: 0.58rem;
+            font-weight: 700;
+            padding: 2px 8px;
+            border-radius: 10px;
+            text-transform: uppercase;
+            cursor: pointer;
+        }
+
+        .pe-pkg-img-ov span.rm {
+            background: rgba(220, 53, 69, 0.9);
+            color: white;
+        }
+
+        .pe-pkg-fields {
+            display: flex;
+            flex-direction: column;
+            gap: 7px;
+        }
+
+        .pe-pkg-row2 {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 7px;
+        }
+
+        .pe-pkg-lbl {
+            font-size: 0.63rem;
+            font-weight: 700;
+            color: rgba(252, 220, 59, 0.6);
+            text-transform: uppercase;
+            letter-spacing: 0.6px;
+            margin-bottom: 3px;
+            display: block;
+        }
+
+        .pe-pkg-in {
+            width: 100%;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 7px;
+            color: white;
+            padding: 7px 10px;
+            font-family: 'Outfit', sans-serif;
+            font-size: 0.83rem;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+
+        .pe-pkg-in:focus {
+            border-color: rgba(252, 220, 59, 0.5);
+        }
+
+        textarea.pe-pkg-in {
+            resize: vertical;
+            min-height: 52px;
+        }
+
+        .pe-pkg-save-row {
+            display: flex;
+            justify-content: flex-end;
+            margin-top: 8px;
+        }
+
+        .pe-pkg-save {
+            background: rgba(252, 220, 59, 0.12);
+            border: 1px solid rgba(252, 220, 59, 0.35);
+            color: #fcdc3b;
+            font-family: 'Outfit', sans-serif;
+            font-size: 0.78rem;
+            font-weight: 700;
+            padding: 5px 14px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+
+        .pe-pkg-save:hover {
+            background: #fcdc3b;
+            color: #000;
+        }
+
+        .pe-add-pkg {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            width: 100%;
+            padding: 11px;
+            border: 2px dashed rgba(252, 220, 59, 0.22);
+            border-radius: 11px;
+            background: transparent;
+            color: rgba(252, 220, 59, 0.45);
+            font-family: 'Outfit', sans-serif;
+            font-size: 0.85rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: 0.22s;
+            margin-top: 4px;
+        }
+
+        .pe-add-pkg:hover {
+            border-color: rgba(252, 220, 59, 0.55);
+            color: #fcdc3b;
+            background: rgba(252, 220, 59, 0.04);
+        }
     </style>
 </head>
 
@@ -394,10 +2035,18 @@
                     </div>
                 </li>
                 <li class="nav-item">
-                    <div class="nav-link" onclick="showSection('manage-content', this)">
-                        <i class="fas fa-images"></i> Manage Content
+                    <div class="nav-link" onclick="showSection('page-editor', this); loadPageEditor();">
+                        <i class="fas fa-edit"></i> Page Editor
                     </div>
                 </li>
+                <li class="nav-item">
+                    <div class="nav-link" onclick="showSection('joints', this); loadPartners();">
+                        <i class="fas fa-handshake"></i> Joints
+                        <span id="joints-badge"
+                            style="margin-left:auto; background:#ef4444; color:#fff; font-size:0.65rem; font-weight:700; padding:2px 8px; border-radius:12px; display:none;"></span>
+                    </div>
+                </li>
+
             </ul>
 
             <div class="logout-btn-area">
@@ -569,80 +2218,502 @@
                 </div>
             </div>
 
-            <!-- SECTION 6: MANAGE CONTENT -->
-            <div id="manage-content" class="content-section">
-                <h2 class="text-gold mb-4"><i class="fas fa-edit me-2"></i>Manage Site Content</h2>
-
-                <div class="glass-panel p-4"
-                    style="background: var(--card-bg); border: 1px solid rgba(252, 220, 59, 0.1); border-radius: 12px;">
-                    <div class="row g-4">
-                        <div class="col-md-4">
-                            <label class="text-white-50 mb-2">Select Service Page</label>
-                            <select id="serviceSelect" class="form-control"
-                                style="background: #2b0530; color: white; border-color: #fcdc3b;"
-                                onchange="loadServiceDetails()">
-                                <option value="catering">Catering Service</option>
-                                <option value="photography">Photography</option>
-                                <option value="travel">Travels</option>
-                                <option value="sweet">Sweet Stall</option>
-                            </select>
-                        </div>
-
-                        <div class="col-md-12">
-                            <hr class="border-white opacity-10 my-4">
-                        </div>
-
-                        <div class="col-md-6">
-                            <label class="text-white fw-bold mb-2">Discount / Offer Text</label>
-                            <input type="text" id="serviceDiscount" class="form-control mb-3"
-                                placeholder="e.g. 10% OFF Quote"
-                                style="background: #19021C; color: white; border: 1px solid rgba(255,255,255,0.1);">
-
-                            <label class="text-white fw-bold mb-2">Description / Tagline</label>
-                            <textarea id="serviceDesc" class="form-control" rows="3" placeholder="Page description..."
-                                style="background: #19021C; color: white; border: 1px solid rgba(255,255,255,0.1);"></textarea>
-                        </div>
-
-                        <div class="col-md-6">
-                            <label class="text-white fw-bold mb-3">Service Gallery</label>
-
-                            <!-- Gallery Container -->
-                            <div class="gallery-manager p-3 rounded"
-                                style="background: #19021C; border: 1px solid rgba(255,255,255,0.1); min-height: 200px;">
-
-                                <!-- Image Grid -->
-                                <div id="imageGrid" class="d-flex flex-wrap gap-3 mb-3">
-                                    <!-- Dynamic Images will appear here -->
-                                </div>
-
-                                <!-- Upload Button controls -->
-                                <div class="dashed-upload-box text-center p-4 rounded text-white-50 cursor-pointer hover-gold border-dashed"
-                                    onclick="document.getElementById('galleryUpload').click()"
-                                    style="border: 2px dashed rgba(255,255,255,0.2);">
-                                    <i class="fas fa-cloud-upload-alt fs-2 mb-2"></i>
-                                    <p class="m-0 small">Click to Upload New Image</p>
-                                </div>
-
-                                <input type="file" id="galleryUpload" hidden accept="image/*"
-                                    onchange="handleGalleryUpload(this)">
-                            </div>
-                            <small class="text-white-50 d-block mt-2">Upload images to update the slideshow
-                                instantly.</small>
-                        </div>
-
-                        <div class="col-12 text-end mt-4 pt-3 border-top border-white border-opacity-10">
-                            <button onclick="saveServiceDetails()" class="btn btn-warning fw-bold px-5 py-3 shadow-lg"
-                                style="background: #fcdc3b; border: none; font-size: 1.1em;">
-                                <i class="fas fa-save me-2"></i>Update Service Page
-                            </button>
-                        </div>
+            <!-- SECTION 7: JOINTS (Partner Applications) -->
+            <div id="joints" class="content-section">
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <div>
+                        <h2 class="text-white fw-bold m-0"><i class="fas fa-handshake me-2"
+                                style="color:var(--gold)"></i>Joints — Partner Applications</h2>
+                        <p class="text-white-50 small mt-1 mb-0">Review, approve or reject vendor/partner applications.
+                        </p>
                     </div>
+                    <div class="d-flex gap-2 align-items-center">
+                        <select id="jointsFilter" onchange="loadPartners()" class="form-select form-select-sm"
+                            style="background:#2b0530; border:1px solid rgba(252,220,59,0.2); color:#fff; width:auto;">
+                            <option value="">All Status</option>
+                            <option value="Pending">Pending</option>
+                            <option value="Approved">Approved</option>
+                            <option value="Rejected">Rejected</option>
+                        </select>
+                        <button onclick="loadPartners()" class="btn-sm-action"><i
+                                class="fas fa-sync-alt me-1"></i>Refresh</button>
+                    </div>
+                </div>
+                <div id="joints-container">
+                    <div class="text-center text-white-50 py-5"><span class="spinner-border me-2"></span>Loading
+                        applications...</div>
                 </div>
             </div>
 
-        </div>
+            <!-- SECTION 6: PAGE EDITOR -->
+            <div id="page-editor" class="content-section">
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <div>
+                        <h2 class="text-white fw-bold m-0"><i class="fas fa-edit me-2"
+                                style="color:var(--gold)"></i>Page Editor</h2>
+                        <p class="text-white-50 small mt-1 mb-0">Click any page to edit its images, text &amp; content.
+                            Changes are saved to database instantly.</p>
+                    </div>
+                </div>
 
-    </div> <!-- End Dashboard View -->
+                <!-- Page Cards Grid -->
+                <div id="pe-page-grid" class="pe-page-grid">
+                    <!-- Cards injected by JS -->
+                    <div class="text-center py-5" id="pe-loading">
+                        <div class="spinner-border text-warning" role="status"></div>
+                        <p class="text-white-50 mt-3">Loading pages...</p>
+                    </div>
+                </div>
+
+                <!-- Editor Panel (shown when a page is selected) -->
+                <div id="pe-editor-panel" class="pe-editor-panel" style="display:none;">
+                    <div class="pe-editor-header">
+                        <button class="pe-back-btn" onclick="closePeEditor()"><i class="fas fa-arrow-left me-2"></i>All
+                            Pages</button>
+                        <div class="pe-editor-title" id="pe-editor-title">Page Name</div>
+                        <a class="pe-view-btn" id="pe-view-link" href="#" target="_blank"><i
+                                class="fas fa-external-link-alt me-1"></i>View Page</a>
+                    </div>
+
+
+                    <!-- SPLIT VIEW: Full Scrollable Preview + Section Editor -->
+                    <div class="pe-split-view">
+
+                        <!-- LEFT: Mini scrollable preview of the real page -->
+                        <div class="pe-preview-pane">
+                            <div class="pe-preview-label">
+                                <i class="fas fa-eye"></i> Live Page Preview â€” Scroll to explore
+                            </div>
+                            <!-- Section jump nav -->
+                            <div class="pe-jump-nav" id="pe-jump-nav">
+                                <button class="pe-jump-btn active" onclick="jumpAndSelect('hero',this)"><i
+                                        class="fas fa-image me-1"></i>Hero</button>
+                                <button class="pe-jump-btn" id="pe-jmp-slideshow"
+                                    onclick="jumpAndSelect('slideshow',this)"><i
+                                        class="fas fa-play-circle me-1"></i>Slideshow</button>
+                                <button class="pe-jump-btn" id="pe-jmp-packages"
+                                    onclick="jumpAndSelect('packages',this)" style="display:none;"><i
+                                        class="fas fa-box me-1"></i>Packages</button>
+                                <button class="pe-jump-btn" onclick="jumpAndSelect('gallery',this)"><i
+                                        class="fas fa-images me-1"></i>Gallery</button>
+                                <button class="pe-jump-btn" onclick="jumpAndSelect('contact',this)"><i
+                                        class="fas fa-phone me-1"></i>Contact</button>
+                            </div>
+                            <!-- Scrollable scaled iframe -->
+                            <div class="pe-iframe-outer">
+                                <div class="pe-iframe-inner" id="pe-iframe-inner">
+                                    <iframe id="pe-page-iframe" src="about:blank"
+                                        sandbox="allow-same-origin allow-scripts allow-forms"></iframe>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- RIGHT: Section-based editor -->
+                        <div class="pe-editor-pane">
+                            <!-- Section selector tabs -->
+                            <div class="pe-section-sel" id="pe-section-sel">
+                                <button class="pe-sel-btn active" id="pe-sel-hero"
+                                    onclick="selectPeZone('hero',this)"><i class="fas fa-image"></i>Hero</button>
+                                <button class="pe-sel-btn" id="pe-sel-slideshow"
+                                    onclick="selectPeZone('slideshow',this)"><i
+                                        class="fas fa-play-circle"></i>Slideshow</button>
+                                <button class="pe-sel-btn" id="pe-sel-packages" onclick="selectPeZone('packages',this)"
+                                    style="display:none;"><i class="fas fa-box"></i>Packages</button>
+                                <button class="pe-sel-btn" id="pe-sel-gallery" onclick="selectPeZone('gallery',this)"><i
+                                        class="fas fa-images"></i>Gallery</button>
+                                <button class="pe-sel-btn" id="pe-sel-contact" onclick="selectPeZone('contact',this)"><i
+                                        class="fas fa-phone"></i>Contact</button>
+                            </div>
+
+                            <div class="pe-pane-wrap">
+
+                                <!-- PANE: Hero / Banner -->
+                                <div id="pe-pane-hero" class="pe-pane">
+                                    <div class="pe-pane-header"><i class="fas fa-image"
+                                            style="color:var(--gold)"></i><span>Hero / Banner Section</span></div>
+                                    <div class="pe-field-group">
+                                        <label class="pe-label">Page Title / Hero Heading</label>
+                                        <input type="text" id="pe-hero-title" class="pe-input"
+                                            placeholder="e.g. Capture The Moment">
+                                    </div>
+                                    <div class="pe-field-group">
+                                        <label class="pe-label">Hero Subtitle / Tagline</label>
+                                        <input type="text" id="pe-hero-subtitle" class="pe-input"
+                                            placeholder="e.g. Premium Photography">
+                                    </div>
+                                    <div class="pe-field-group">
+                                        <label class="pe-label">Description / About Text</label>
+                                        <textarea id="pe-hero-text" class="pe-input" rows="4"
+                                            placeholder="Write your page description here..."></textarea>
+                                    </div>
+                                    <div class="pe-field-group">
+                                        <label class="pe-label">Hero / Background Image</label>
+                                        <div id="pe-hero-placeholder"
+                                            style="width:100%;height:110px;background:rgba(255,255,255,0.03);border:2px dashed rgba(252,220,59,0.25);border-radius:10px;display:flex;flex-direction:column;align-items:center;justify-content:center;">
+                                            <i class="fas fa-cloud-upload-alt"
+                                                style="font-size:1.8rem;color:rgba(252,220,59,0.3);"></i>
+                                            <p class="mt-1 text-white-50 small mb-0">No hero image set</p>
+                                        </div>
+                                        <img id="pe-hero-img" src=""
+                                            style="display:none;width:100%;height:140px;object-fit:cover;border-radius:10px;">
+                                        <div class="d-flex gap-2 mt-2">
+                                            <label class="pe-upload-btn" for="pe-hero-upload"><i
+                                                    class="fas fa-upload me-1"></i>Upload Image</label>
+                                            <input type="file" id="pe-hero-upload" accept="image/*" style="display:none"
+                                                onchange="uploadPeHeroImage(this)">
+                                            <button class="pe-remove-btn" id="pe-hero-remove"
+                                                onclick="removePeHeroImage()" style="display:none"><i
+                                                    class="fas fa-trash me-1"></i>Remove</button>
+                                        </div>
+                                    </div>
+                                    <div class="text-end mt-3"><button class="pe-save-btn" onclick="savePeText()"><i
+                                                class="fas fa-save me-2"></i>Save Hero</button></div>
+                                </div>
+
+                                <!-- PANE: Slideshow images -->
+                                <div id="pe-pane-slideshow" class="pe-pane" style="display:none;">
+                                    <div class="pe-pane-header"><i class="fas fa-play-circle"
+                                            style="color:var(--gold)"></i><span>Slideshow / Banner Images</span></div>
+                                    <p class="text-white-50 small mb-3">These images appear in the top slideshow/banner
+                                        of this page.</p>
+                                    <div class="d-flex justify-content-between align-items-center mb-3">
+                                        <label class="pe-label mb-0">Slideshow Images</label>
+                                        <label class="pe-upload-btn" for="pe-slide-upload"
+                                            style="font-size:0.82rem;padding:7px 14px;"><i
+                                                class="fas fa-plus me-1"></i>Add Slide Image</label>
+                                        <input type="file" id="pe-slide-upload" accept="image/*" style="display:none"
+                                            onchange="uploadPeSlideImage(this)">
+                                    </div>
+                                    <div id="pe-slide-grid" style="display:flex;flex-wrap:wrap;gap:10px;">
+                                        <p class="text-white-50 small">No slideshow images yet.</p>
+                                    </div>
+                                </div>
+
+                                <!-- PANE: Packages (for service pages only) -->
+                                <div id="pe-pane-packages" class="pe-pane" style="display:none;">
+                                    <div class="pe-pane-header"><i class="fas fa-box"
+                                            style="color:var(--gold)"></i><span>Service Packages</span></div>
+                                    <p class="text-white-50 small mb-3">Edit package name, price, description and image.
+                                        Changes are saved instantly.</p>
+                                    <div id="pe-pkg-list">
+                                        <div class="text-center py-4">
+                                            <div class="spinner-border spinner-border-sm text-warning" role="status">
+                                            </div>
+                                            <p class="text-white-50 mt-2 small">Loading packages...</p>
+                                        </div>
+                                    </div>
+                                    <button class="pe-add-pkg" onclick="addNewPePackage()"><i
+                                            class="fas fa-plus me-2"></i>Add New Package</button>
+                                </div>
+
+                                <!-- PANE: Gallery images -->
+                                <div id="pe-pane-gallery" class="pe-pane" style="display:none;">
+                                    <div class="pe-pane-header"><i class="fas fa-images"
+                                            style="color:var(--gold)"></i><span>Gallery / Section Images</span></div>
+                                    <div class="d-flex justify-content-between align-items-center mb-3">
+                                        <label class="pe-label mb-0">Page Gallery Images</label>
+                                        <label class="pe-upload-btn" for="pe-gallery-upload"
+                                            style="font-size:0.82rem;padding:7px 14px;"><i
+                                                class="fas fa-plus me-1"></i>Add Image</label>
+                                        <input type="file" id="pe-gallery-upload" accept="image/*" style="display:none"
+                                            onchange="uploadPeGalleryImage(this)">
+                                    </div>
+                                    <div class="pe-gallery-grid" id="pe-gallery-grid">
+                                        <p class="text-white-50 small py-3">No gallery images yet. Click "Add Image" to
+                                            upload.</p>
+                                    </div>
+                                </div>
+
+                                <!-- PANE: Contact Info -->
+                                <div id="pe-pane-contact" class="pe-pane" style="display:none;">
+                                    <div class="pe-pane-header"><i class="fas fa-phone"
+                                            style="color:var(--gold)"></i><span>Contact Information</span></div>
+                                    <p class="text-white-50 small mb-3">These details appear in the Contact section of
+                                        all pages.</p>
+                                    <div class="row g-3">
+                                        <div class="col-12"><label class="pe-label">Phone Number 1</label><input
+                                                type="text" id="pe-phone1" class="pe-input"
+                                                placeholder="+91 88700 43071"></div>
+                                        <div class="col-12"><label class="pe-label">Phone Number 2</label><input
+                                                type="text" id="pe-phone2" class="pe-input"
+                                                placeholder="+91 80154 27723"></div>
+                                        <div class="col-12"><label class="pe-label">Email 1</label><input type="email"
+                                                id="pe-email1" class="pe-input" placeholder="example@email.com"></div>
+                                        <div class="col-12"><label class="pe-label">Email 2</label><input type="email"
+                                                id="pe-email2" class="pe-input" placeholder="example2@email.com"></div>
+                                        <div class="col-12"><label class="pe-label">Address</label><textarea
+                                                id="pe-address" class="pe-input" rows="2"
+                                                placeholder="Raja Street, Laligam, Dharmapuri"></textarea></div>
+                                        <div class="col-12"><label class="pe-label">Google Maps URL</label><input
+                                                type="text" id="pe-mapurl" class="pe-input"
+                                                placeholder="https://maps.google.com/?q=..."></div>
+                                    </div>
+                                    <div class="text-end mt-4"><button class="pe-save-btn" onclick="savePeContact()"><i
+                                                class="fas fa-save me-2"></i>Save Contact Info</button></div>
+                                </div>
+
+                                <!-- PANE: Live Selector (AI Added) -->
+                                <div id="pe-pane-live" class="pe-pane" style="display:none;">
+                                    <div class="pe-pane-header"><i class="fas fa-magic"
+                                            style="color:var(--gold)"></i><span>Live Element Editor</span></div>
+                                    <p class="text-white-50 small mb-3">You clicked an element in the live preview. Edit
+                                        it directly below.</p>
+
+                                    <input type="hidden" id="pe-live-selector">
+                                    <input type="hidden" id="pe-live-type">
+
+                                    <div class="pe-field-group" id="pe-live-text-group" style="display:none;">
+                                        <label class="pe-label">Element Text Content</label>
+                                        <textarea id="pe-live-text" class="pe-input" rows="5"
+                                            placeholder="Change the text..."></textarea>
+                                    </div>
+
+                                    <div class="pe-field-group" id="pe-live-img-group" style="display:none;">
+                                        <label class="pe-label">Element Image src</label>
+                                        <div class="d-flex gap-2">
+                                            <input type="text" id="pe-live-img-src" class="pe-input"
+                                                placeholder="Image URL">
+                                            <label class="pe-upload-btn" for="pe-live-upload"
+                                                style="margin:0; padding:10px;"><i class="fas fa-upload"></i></label>
+                                            <input type="file" id="pe-live-upload" accept="image/*" style="display:none"
+                                                onchange="uploadLiveImage(this)">
+                                        </div>
+                                    </div>
+
+                                    <div class="text-end mt-4">
+                                        <button class="pe-save-btn" onclick="savePeLiveEdit()"><i
+                                                class="fas fa-save me-2"></i>Save Live Edit</button>
+                                    </div>
+                                </div>
+                            </div><!-- end pe-pane-wrap -->
+                        </div><!-- end pe-editor-pane -->
+                    </div><!-- end pe-split-view -->
+                </div><!-- end pe-editor-panel -->
+            </div><!-- end page-editor -->
+        </div><!-- end main-content -->
+    </div><!-- End Dashboard View -->
+
+    <!-- JOINTS styles and overlays are above -->
+
+    <style>
+        .joint-card {
+            background: #1e0321;
+            border: 1px solid rgba(252, 220, 59, 0.15);
+            border-radius: 16px;
+            overflow: hidden;
+            margin-bottom: 20px;
+            transition: border-color 0.3s;
+        }
+
+        .joint-card:hover {
+            border-color: rgba(252, 220, 59, 0.4);
+        }
+
+        .joint-card-header {
+            background: #2b0530;
+            padding: 16px 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 10px;
+        }
+
+        .joint-img-row {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            padding: 15px 20px 5px;
+        }
+
+        .joint-img {
+            width: 100px;
+            height: 75px;
+            object-fit: cover;
+            border-radius: 8px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+
+        .joint-img:hover {
+            transform: scale(1.05);
+            border-color: var(--gold);
+        }
+
+        .joint-body {
+            padding: 15px 20px 20px;
+        }
+
+        .joint-info-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+
+        .joint-info-item {
+            background: rgba(255, 255, 255, 0.04);
+            border-radius: 8px;
+            padding: 10px 14px;
+        }
+
+        .joint-info-label {
+            font-size: 0.72rem;
+            font-weight: 700;
+            color: rgba(255, 215, 0, 0.7);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 3px;
+        }
+
+        .joint-info-value {
+            color: #fff;
+            font-size: 0.9rem;
+            font-weight: 500;
+        }
+
+        .badge-pending {
+            background: rgba(255, 165, 0, 0.15);
+            color: #ffa500;
+            border: 1px solid rgba(255, 165, 0, 0.3);
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 700;
+        }
+
+        .badge-approved {
+            background: rgba(34, 197, 94, 0.15);
+            color: #22c55e;
+            border: 1px solid rgba(34, 197, 94, 0.3);
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 700;
+        }
+
+        .badge-rejected {
+            background: rgba(239, 68, 68, 0.15);
+            color: #ef4444;
+            border: 1px solid rgba(239, 68, 68, 0.3);
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 700;
+        }
+
+        .joint-actions {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .btn-approve {
+            background: rgba(34, 197, 94, 0.15);
+            border: 1px solid rgba(34, 197, 94, 0.4);
+            color: #22c55e;
+            padding: 8px 20px;
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 0.85rem;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-family: 'Outfit', sans-serif;
+        }
+
+        .btn-approve:hover {
+            background: #22c55e;
+            color: #000;
+        }
+
+        .btn-reject {
+            background: rgba(239, 68, 68, 0.12);
+            border: 1px solid rgba(239, 68, 68, 0.35);
+            color: #ef4444;
+            padding: 8px 20px;
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 0.85rem;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-family: 'Outfit', sans-serif;
+        }
+
+        .btn-reject:hover {
+            background: #ef4444;
+            color: #fff;
+        }
+
+        .btn-del-joint {
+            background: transparent;
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            color: rgba(255, 255, 255, 0.4);
+            padding: 8px 16px;
+            border-radius: 8px;
+            font-size: 0.8rem;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-family: 'Outfit', sans-serif;
+        }
+
+        .btn-del-joint:hover {
+            border-color: #dc3545;
+            color: #dc3545;
+        }
+
+        /* Note modal overlay */
+        #jointNoteOverlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.75);
+            z-index: 9999;
+            align-items: center;
+            justify-content: center;
+        }
+
+        #jointNoteOverlay.active {
+            display: flex;
+        }
+
+        #jointNoteModal {
+            background: #1e0321;
+            border: 1px solid rgba(252, 220, 59, 0.3);
+            border-radius: 16px;
+            padding: 30px;
+            width: 90%;
+            max-width: 440px;
+        }
+    </style>
+
+    <!-- Note/Action Overlay for approve/reject -->
+    <div id="jointNoteOverlay">
+        <div id="jointNoteModal">
+            <h5 class="text-gold fw-bold mb-3" id="jointNoteTitle">Add a Note (Optional)</h5>
+            <textarea id="jointNoteText" class="form-control mb-4" rows="3"
+                placeholder="e.g. Welcome! Please contact us within 3 days."
+                style="background:rgba(255,255,255,0.06); border:1px solid rgba(252,220,59,0.2); color:#fff; border-radius:10px;"></textarea>
+            <div class="d-flex gap-3">
+                <button id="jointNoteConfirm" class="btn btn-warning flex-grow-1 fw-bold">Confirm</button>
+                <button onclick="closeJointNoteOverlay()" class="btn btn-outline-secondary flex-grow-1">Cancel</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Image Lightbox -->
+    <div id="jointLightbox"
+        style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.92); z-index:19999; align-items:center; justify-content:center; cursor:zoom-out;"
+        onclick="this.style.display='none'">
+        <img id="jointLightboxImg" src=""
+            style="max-width:90vw; max-height:90vh; border-radius:10px; border:2px solid rgba(252,220,59,0.4);">
+    </div>
+
+
+
+    <!-- Toast Notification -->
+    <div id="pe-toast" class="pe-toast"></div>
+
+
 
     <script>
         // Check Auth immediately
@@ -650,6 +2721,9 @@
         if (isAdmin) {
             document.getElementById('login-view').style.display = 'none';
             document.getElementById('dashboard-view').style.display = 'block';
+            loadData();
+            // Load partners badge on startup
+            setTimeout(loadPartners, 500);
         } else {
             document.getElementById('login-view').style.display = 'flex';
             document.getElementById('dashboard-view').style.display = 'none';
@@ -671,9 +2745,12 @@
 
                 if (data.success) {
                     localStorage.setItem('isAdmin', 'true');
-                    window.location.reload();
+                    document.getElementById('login-view').style.display = 'none';
+                    document.getElementById('dashboard-view').style.display = 'block';
+                    loadData();
+                    loadPartners();
                 } else {
-                    err.textContent = 'Invalid credentials. Please try again.';
+                    err.textContent = data.message || 'Invalid credentials. Please try again.';
                 }
             } catch (error) {
                 console.error(error);
@@ -705,6 +2782,10 @@
             if (sectionId === 'travels') currentlyVisibleTableId = 'table-travels';
             if (sectionId === 'photography') currentlyVisibleTableId = 'table-photography';
             if (sectionId === 'sweets') currentlyVisibleTableId = 'table-sweets';
+            if (sectionId === 'page-editor') currentlyVisibleTableId = null;
+            if (sectionId === 'joints') currentlyVisibleTableId = null;
+
+
 
             // Clear search when switching
             document.getElementById('tableSearch').value = '';
@@ -715,6 +2796,7 @@
             const input = document.getElementById('tableSearch');
             const filter = input.value.toLowerCase();
             const table = document.getElementById(currentlyVisibleTableId);
+            if (!table) return; // Guard: no table visible (e.g. Manage Content is active)
             const tr = table.getElementsByTagName('tr');
 
             // Loop through all table rows, and hide those who don't match the search query
@@ -763,6 +2845,157 @@
 
             } catch (e) {
                 console.error(e);
+            }
+        }
+
+        // ===== JOINTS: Partner Applications =====
+        let _jointActionId = null;
+        let _jointActionType = null;
+
+        async function loadPartners() {
+            const container = document.getElementById('joints-container');
+            if (!container) return;
+            const filter = document.getElementById('jointsFilter')?.value || '';
+            container.innerHTML = '<div class="text-center text-white-50 py-5"><span class="spinner-border me-2"></span>Loading...</div>';
+
+            try {
+                const res = await fetch('/api/partners');
+                let partners = await res.json();
+
+                // Update pending badge
+                const pending = partners.filter(p => p.status === 'Pending').length;
+                const badge = document.getElementById('joints-badge');
+                if (badge) {
+                    badge.textContent = pending;
+                    badge.style.display = pending > 0 ? 'inline-block' : 'none';
+                }
+
+                // Apply filter
+                if (filter) partners = partners.filter(p => p.status === filter);
+
+                if (partners.length === 0) {
+                    container.innerHTML = `<div class="text-center text-white-50 py-5"><i class="fas fa-inbox fa-3x mb-3 d-block" style="opacity:0.3"></i>${filter ? 'No ' + filter + ' applications.' : 'No applications yet.'}</div>`;
+                    return;
+                }
+
+                container.innerHTML = partners.map(p => {
+                    const statusBadge = p.status === 'Approved'
+                        ? `<span class="badge-approved">✅ Approved</span>`
+                        : p.status === 'Rejected'
+                            ? `<span class="badge-rejected">❌ Rejected</span>`
+                            : `<span class="badge-pending">⏳ Pending</span>`;
+
+                    const imgs = (p.images || []).map(img =>
+                        `<img class="joint-img" src="${img}" alt="" onclick="openJointLightbox('${img}')">`
+                    ).join('');
+
+                    const extras = [
+                        p.vehicleModel ? `<div class="joint-info-item"><div class="joint-info-label">Vehicle / Model</div><div class="joint-info-value">${p.vehicleModel}</div></div>` : '',
+                        p.cameraModel ? `<div class="joint-info-item"><div class="joint-info-label">Camera / Gear</div><div class="joint-info-value">${p.cameraModel}</div></div>` : '',
+                        p.menuItems ? `<div class="joint-info-item"><div class="joint-info-label">Menu / Specialties</div><div class="joint-info-value">${p.menuItems}</div></div>` : '',
+                        p.sweetType ? `<div class="joint-info-item"><div class="joint-info-label">Sweet Type</div><div class="joint-info-value">${p.sweetType}</div></div>` : '',
+                        p.teamSize ? `<div class="joint-info-item"><div class="joint-info-label">Team / Vehicle Count</div><div class="joint-info-value">${p.teamSize}</div></div>` : '',
+                        p.details ? `<div class="joint-info-item" style="grid-column:1/-1"><div class="joint-info-label">Details</div><div class="joint-info-value">${p.details}</div></div>` : '',
+                        p.adminNote ? `<div class="joint-info-item" style="grid-column:1/-1;background:rgba(252,220,59,0.06);border:1px solid rgba(252,220,59,0.2)"><div class="joint-info-label">Admin Note</div><div class="joint-info-value">${p.adminNote}</div></div>` : ''
+                    ].filter(Boolean).join('');
+
+                    const approveBtn = p.status !== 'Approved'
+                        ? `<button class="btn-approve" onclick="jointAction('${p._id}','approve')"><i class="fas fa-check me-1"></i>Approve</button>` : '';
+                    const rejectBtn = p.status !== 'Rejected'
+                        ? `<button class="btn-reject" onclick="jointAction('${p._id}','reject')"><i class="fas fa-times me-1"></i>Reject</button>` : '';
+
+                    return `
+                    <div class="joint-card" id="jcard-${p._id}">
+                        <div class="joint-card-header">
+                            <div class="d-flex align-items-center gap-3 flex-wrap">
+                                <span style="background:rgba(252,220,59,0.15); border:1px solid rgba(252,220,59,0.3); color:var(--gold); padding:3px 12px; border-radius:14px; font-size:0.78rem; font-weight:700;">${p.category}</span>
+                                ${statusBadge}
+                                <span class="text-white fw-bold">${p.name}</span>
+                            </div>
+                            <small class="text-white-50">${new Date(p.createdAt).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' })}</small>
+                        </div>
+                        ${imgs ? `<div class="joint-img-row">${imgs}</div>` : ''}
+                        <div class="joint-body">
+                            <div class="joint-info-grid">
+                                <div class="joint-info-item"><div class="joint-info-label">Mobile</div><div class="joint-info-value">${p.mobile}</div></div>
+                                <div class="joint-info-item"><div class="joint-info-label">Email</div><div class="joint-info-value">${p.email}</div></div>
+                                <div class="joint-info-item"><div class="joint-info-label">Location</div><div class="joint-info-value">${p.address}</div></div>
+                                ${extras}
+                            </div>
+                            <div class="joint-actions">
+                                ${approveBtn}
+                                ${rejectBtn}
+                                <button class="btn-del-joint" onclick="deletePartner('${p._id}')"><i class="fas fa-trash me-1"></i>Delete</button>
+                            </div>
+                        </div>
+                    </div>`;
+                }).join('');
+
+            } catch (err) {
+                console.error(err);
+                container.innerHTML = '<div class="text-center text-danger py-5">Failed to load applications.</div>';
+            }
+        }
+
+        function openJointLightbox(src) {
+            const lb = document.getElementById('jointLightbox');
+            document.getElementById('jointLightboxImg').src = src;
+            lb.style.display = 'flex';
+        }
+
+        function jointAction(id, type) {
+            _jointActionId = id;
+            _jointActionType = type;
+            document.getElementById('jointNoteTitle').textContent =
+                type === 'approve' ? '✅ Approve — Add a Note (Optional)' : '❌ Reject — Add a Reason (Optional)';
+            document.getElementById('jointNoteText').value = '';
+            document.getElementById('jointNoteOverlay').classList.add('active');
+            document.getElementById('jointNoteConfirm').onclick = confirmJointAction;
+        }
+
+        function closeJointNoteOverlay() {
+            document.getElementById('jointNoteOverlay').classList.remove('active');
+            _jointActionId = null;
+            _jointActionType = null;
+        }
+
+        async function confirmJointAction() {
+            if (!_jointActionId || !_jointActionType) return;
+            const note = document.getElementById('jointNoteText').value.trim();
+            const url = `/api/partners/${_jointActionId}/${_jointActionType}`;
+            closeJointNoteOverlay();
+            try {
+                const res = await fetch(url, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ adminNote: note })
+                });
+                const result = await res.json();
+                if (result.success) {
+                    loadPartners(); // Refresh
+                } else {
+                    alert('Action failed: ' + (result.error || 'Unknown error'));
+                }
+            } catch (err) {
+                console.error(err);
+                alert('Network error. Please try again.');
+            }
+        }
+
+        async function deletePartner(id) {
+            if (!confirm('Delete this application permanently?')) return;
+            try {
+                const res = await fetch(`/api/partners/${id}`, { method: 'DELETE' });
+                const result = await res.json();
+                if (result.success) {
+                    const card = document.getElementById('jcard-' + id);
+                    if (card) { card.style.opacity = '0'; setTimeout(() => { card.remove(); }, 300); }
+                } else {
+                    alert('Delete failed.');
+                }
+            } catch (err) {
+                console.error(err);
+                alert('Network error.');
             }
         }
 
@@ -861,150 +3094,742 @@
             window.location.reload();
         }
 
-        // --- Manage Content Logic ---
-        // --- Gallery Management Logic ---
-        let currentGalleryImages = [];
 
-        async function loadServiceDetails() {
-            const category = document.getElementById('serviceSelect').value;
-            const discountInput = document.getElementById('serviceDiscount');
-            const descInput = document.getElementById('serviceDesc');
 
-            // Reset UI
-            discountInput.value = '';
-            descInput.value = '';
-            currentGalleryImages = [];
-            renderGallery();
-
-            try {
-                const res = await fetch(`/api/services?category=${category}`);
-                const data = await res.json();
-
-                if (data && data.length > 0) {
-                    const service = data[0];
-                    discountInput.value = service.discount || '';
-                    descInput.value = service.description || '';
-                    currentGalleryImages = service.images || [];
-                    renderGallery();
-                }
-            } catch (error) {
-                console.error('Error loading service details:', error);
-                alert('Failed to load service data.');
-            }
+        // ---- INIT ---- only fetch data if user is already logged in
+        if (isAdmin) {
+            loadData();
         }
 
-        function renderGallery() {
-            const grid = document.getElementById('imageGrid');
-            if (grid) {
-                grid.innerHTML = '';
+        // ======= PAGE EDITOR =======
+        const PE_PAGES = [
+            { id: 'home', name: 'Home', url: 'index.html', icon: 'fa-home', color: '#fcdc3b', bg: 'linear-gradient(135deg,#1a1000,#3a2800)' },
+            { id: 'about', name: 'About Us', url: 'about.html', icon: 'fa-info-circle', color: '#a78bfa', bg: 'linear-gradient(135deg,#0d0020,#1e0040)' },
+            { id: 'contact', name: 'Contact', url: 'contact.html', icon: 'fa-phone-alt', color: '#34d399', bg: 'linear-gradient(135deg,#001a10,#003520)' },
+            { id: 'catering', name: 'Catering', url: 'catering.html', icon: 'fa-utensils', color: '#fb923c', bg: 'linear-gradient(135deg,#1a0800,#3a1500)' },
+            { id: 'travels', name: 'Travels', url: 'travels.html', icon: 'fa-bus', color: '#38bdf8', bg: 'linear-gradient(135deg,#001520,#002a40)' },
+            { id: 'photography', name: 'Photography', url: 'photography.html', icon: 'fa-camera', color: '#f472b6', bg: 'linear-gradient(135deg,#1a0015,#380030)' },
+            { id: 'sweet', name: 'Sweet Stall', url: 'sweet-service.html', icon: 'fa-ice-cream', color: '#f59e0b', bg: 'linear-gradient(135deg,#1a1000,#352000)' },
+            { id: 'reviews', name: 'Reviews', url: 'review.html', icon: 'fa-star', color: '#fcd34d', bg: 'linear-gradient(135deg,#1a1500,#302a00)' },
+            { id: 'offers', name: 'Offers', url: 'offers.html', icon: 'fa-tags', color: '#4ade80', bg: 'linear-gradient(135deg,#001a08,#003010)' },
+            { id: 'join', name: 'Join Us', url: 'join.html', icon: 'fa-handshake', color: '#60a5fa', bg: 'linear-gradient(135deg,#001020,#002040)' }
+        ];
 
-                currentGalleryImages.forEach((url, index) => {
-                    const div = document.createElement('div');
-                    div.className = 'position-relative';
-                    div.style.width = '100px';
-                    div.style.height = '100px';
+        let peCurrentPage = null;
+        let pePageDataCache = {};
+        let peLoaded = false;
 
-                    div.innerHTML = `
-                        <div class="ratio ratio-1x1 h-100 rounded overflow-hidden border border-secondary">
-                            <img src="${url}" class="object-fit-cover w-100 h-100" alt="Gallery Image">
+        function loadPageEditor() {
+            if (peLoaded) return;
+            peLoaded = true;
+            renderPageCards();
+        }
+
+        async function renderPageCards() {
+            const grid = document.getElementById('pe-page-grid');
+            grid.innerHTML = '<div class="text-center py-5"><div class="spinner-border text-warning" role="status"></div><p class="text-white-50 mt-3">Loading pages...</p></div>';
+
+            // Load all page data to show live status
+            let pageDataMap = {};
+            try {
+                const res = await fetch('/api/page-content');
+                const allPages = await res.json();
+                allPages.forEach(p => { pageDataMap[p.pageId] = p; });
+            } catch (e) { }
+
+            grid.innerHTML = PE_PAGES.map(p => {
+                const data = pageDataMap[p.id] || {};
+                const hasHeroImage = !!data.heroImage;
+                const galleryCount = (data.sections || []).reduce((n, s) => n + (s.images || []).length, 0);
+                const hasText = !!(data.heroTitle || data.heroSubtitle);
+
+                const thumbStyle = hasHeroImage
+                    ? `background-image:url('${data.heroImage}'); background-size:cover; background-position:center;`
+                    : `background:${p.bg};`;
+
+                return `
+                <div class="pe-page-card" onclick="openPeEditor('${p.id}')" id="pe-card-${p.id}">
+                    <div class="pe-card-thumb" style="${thumbStyle}">
+                        ${!hasHeroImage ? `<span class="pe-card-thumb-icon"><i class="fas ${p.icon}" style="color:${p.color};"></i></span>` : ''}
+                        <span class="pe-card-edit-badge"><i class="fas fa-edit me-1"></i>Edit</span>
+                        <div class="pe-card-status-row">
+                            <span class="pe-status-dot" style="background:${hasText ? '#34d399' : 'rgba(255,255,255,0.2)'};" title="${hasText ? 'Text saved' : 'No text'}"></span>
+                            <span class="pe-status-dot" style="background:${hasHeroImage ? '#60a5fa' : 'rgba(255,255,255,0.2)'};" title="${hasHeroImage ? 'Hero image set' : 'No hero image'}"></span>
+                            <span class="pe-status-dot" style="background:${galleryCount > 0 ? '#f472b6' : 'rgba(255,255,255,0.2)'};" title="${galleryCount} gallery images"></span>
                         </div>
-                        <button onclick="removeGalleryImage(${index})" 
-                                class="btn btn-sm btn-danger position-absolute top-0 end-0 m-1 p-0 d-flex align-items-center justify-content-center rounded-circle"
-                                style="width: 20px; height: 20px; font-size: 10px;">
-                            <i class="fas fa-times"></i>
-                        </button>
-                    `;
-                    grid.appendChild(div);
-                });
-            }
+                    </div>
+                    <div class="pe-card-body">
+                        <div class="pe-card-name">${p.name}</div>
+                        <div class="pe-card-url"><i class="fas fa-link me-1" style="font-size:0.65rem;"></i>${p.url}</div>
+                        <div class="pe-card-stats">
+                            <span class="pe-stat-pill" style="${hasText ? 'border-color:rgba(52,211,153,0.4);color:#34d399;' : ''}">
+                                <i class="fas fa-font me-1"></i>${hasText ? 'Text ✓' : 'No Text'}
+                            </span>
+                            <span class="pe-stat-pill" style="${galleryCount > 0 ? 'border-color:rgba(244,114,182,0.4);color:#f472b6;' : ''}">
+                                <i class="fas fa-image me-1"></i>${galleryCount > 0 ? galleryCount + ' imgs' : 'No Imgs'}
+                            </span>
+                        </div>
+                    </div>
+                </div>`;
+            }).join('');
         }
 
-        async function handleGalleryUpload(input) {
-            const file = input.files[0];
-            if (!file) return;
+        // ======= SERVICE PAGES THAT HAVE PACKAGES + SLIDESHOW =======
+        const PE_SERVICE_PAGES = ['photography', 'catering', 'travels', 'sweet'];
+        const PE_CATEGORY_MAP = {
+            photography: 'photography',
+            catering: 'catering',
+            travels: 'travels',
+            sweet: 'sweet-stall'
+        };
 
-            // Show loading state placeholder? 
-            // For now specific implementation
-            const formData = new FormData();
-            formData.append('image', file);
+        // ======= SERVICE PAGES THAT HAVE PACKAGES + SLIDESHOW =======
+
+        // ======= IFRAME CLICK-TO-EDIT INTERACTION _______
+        function getUniqueSelector(el) {
+            if (el.id) return '#' + el.id;
+            const path = [];
+            while (el && el.nodeType === Node.ELEMENT_NODE && el.tagName !== 'HTML') {
+                let selector = el.tagName.toLowerCase();
+                if (el.id) { path.unshift('#' + el.id); break; }
+                else {
+                    let index = 1;
+                    let sibling = el.previousElementSibling;
+                    while (sibling) { if (sibling.tagName === el.tagName) index++; sibling = sibling.previousElementSibling; }
+                    path.unshift(selector + ':nth-of-type(' + index + ')');
+                }
+                el = el.parentNode;
+            }
+            return path.join(' > ');
+        }
+
+        function setupIframeInteraction() {
+            const iframe = document.getElementById('pe-page-iframe');
+            if (!iframe || !iframe.contentDocument) return;
+            const doc = iframe.contentDocument;
+
+            const style = doc.createElement('style');
+            style.innerHTML = `
+                        .pe-hover-outline {
+                            outline: 3px dashed rgba(252,220,59,0.9) !important;
+                            outline-offset: 4px !important;
+                            background-color: rgba(252,220,59,0.15) !important;
+                            cursor: pointer !important;
+                        }
+                    `;
+            doc.head.appendChild(style);
+
+            const targetTags = 'h1, h2, h3, h4, h5, h6, p, span, li, a, img, button, b, strong, i, em';
+
+            doc.body.addEventListener('mouseover', (e) => {
+                const el = e.target.closest(targetTags);
+                if (el) el.classList.add('pe-hover-outline');
+            });
+            doc.body.addEventListener('mouseout', (e) => {
+                const el = e.target.closest(targetTags);
+                if (el) el.classList.remove('pe-hover-outline');
+            });
+
+            doc.body.addEventListener('click', (e) => {
+                const el = e.target.closest(targetTags);
+                if (!el) return;
+                e.preventDefault();
+                e.stopPropagation();
+
+                const parentWin = window.parent;
+                const sel = getUniqueSelector(el);
+
+                // Switch to live pane
+                parentWin.document.querySelectorAll('.pe-sel-btn').forEach(b => b.classList.remove('active'));
+                parentWin.document.querySelectorAll('.pe-pane').forEach(p => p.style.display = 'none');
+
+                const livePane = parentWin.document.getElementById('pe-pane-live');
+                if (livePane) livePane.style.display = 'block';
+
+                parentWin.document.getElementById('pe-live-selector').value = sel;
+
+                // Wait wait, if they clicked a predefined element or inside packages, 
+                // maybe still allow live editing for everything exactly the same.
+
+                if (el.tagName === 'IMG') {
+                    parentWin.document.getElementById('pe-live-type').value = 'img';
+                    parentWin.document.getElementById('pe-live-text-group').style.display = 'none';
+                    parentWin.document.getElementById('pe-live-img-group').style.display = 'block';
+                    parentWin.document.getElementById('pe-live-img-src').value = el.src || '';
+                } else {
+                    parentWin.document.getElementById('pe-live-type').value = 'text';
+                    parentWin.document.getElementById('pe-live-text-group').style.display = 'block';
+                    parentWin.document.getElementById('pe-live-img-group').style.display = 'none';
+
+                    // Load existing text
+                    // First, try from dynamicMap
+                    const cached = parentWin.pePageDataCache[parentWin.peCurrentPage] || {};
+                    const dm = cached.dynamicMap || {};
+                    if (dm[sel]) {
+                        parentWin.document.getElementById('pe-live-text').value = dm[sel];
+                    } else {
+                        parentWin.document.getElementById('pe-live-text').value = el.innerHTML.trim();
+                    }
+                }
+
+                parentWin.showPeToast('Ã°Å¸Å½Â¯ Live Edit element selected!', false);
+            }, true);
+        }
+
+        async function savePeLiveEdit() {
+            const sel = document.getElementById('pe-live-selector').value;
+            const type = document.getElementById('pe-live-type').value;
+            if (!sel || !peCurrentPage) return;
+
+            let val = '';
+            if (type === 'img') val = document.getElementById('pe-live-img-src').value;
+            else val = document.getElementById('pe-live-text').value;
+
+            const cached = pePageDataCache[peCurrentPage] || {};
+            let dm = cached.dynamicMap || {};
+            dm[sel] = val; // Store mapping
 
             try {
-                const res = await fetch('/api/admin/upload', {
-                    method: 'POST',
-                    body: formData
-                });
+                const payload = { ...cached, pageId: peCurrentPage, dynamicMap: dm };
+                const res = await fetch('/api/page-content/' + peCurrentPage, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
                 const data = await res.json();
-
                 if (data.success) {
-                    currentGalleryImages.push(data.imageUrl);
-                    renderGallery();
-                    input.value = ''; // Reset input
+                    pePageDataCache[peCurrentPage] = data.page;
+                    showPeToast('✅ Live Element saved!');
+
+                    // instantly update the iframe without reloading
+                    const iframe = document.getElementById('pe-page-iframe');
+                    if (iframe && iframe.contentDocument) {
+                        const target = iframe.contentDocument.querySelector(sel);
+                        if (target) {
+                            if (type === 'img') target.src = val;
+                            else target.innerHTML = val;
+                        }
+                    }
                 } else {
-                    alert('Upload failed: ' + (data.error || 'Unknown error'));
+                    showPeToast('❌ Failed', true);
                 }
-            } catch (error) {
-                console.error('Upload Error:', error);
-                alert('Upload failed.');
+            } catch (e) { showPeToast('❌ Error', true); }
+        }
+
+        async function uploadLiveImage(input) {
+            if (!input.files[0]) return;
+            showPeToast('🚀 Uploading...');
+            const formData = new FormData();
+            formData.append('image', input.files[0]);
+            try {
+                const res = await fetch('/api/admin/upload', { method: 'POST', body: formData });
+                const data = await res.json();
+                if (data.success) {
+                    document.getElementById('pe-live-img-src').value = data.imageUrl;
+                    showPeToast('✅ Uploaded!');
+                } else {
+                    showPeToast('❌ Failed', true);
+                }
+            } catch (e) { showPeToast('❌ Error', true); }
+            input.value = '';
+        }
+        async function openPeEditor(pageId) {
+            const pageInfo = PE_PAGES.find(p => p.id === pageId);
+            if (!pageInfo) return;
+            peCurrentPage = pageId;
+
+            // Update editor header
+            document.getElementById('pe-editor-title').innerHTML =
+                `<i class="fas ${pageInfo.icon} me-2" style="color:${pageInfo.color}"></i>Editing: ${pageInfo.name}`;
+            document.getElementById('pe-view-link').href = pageInfo.url;
+            document.getElementById('pe-page-grid').style.display = 'none';
+            document.getElementById('pe-editor-panel').style.display = 'block';
+
+            // Load the real page into mini iframe
+            const iframe = document.getElementById('pe-page-iframe');
+            if (iframe) {
+                iframe.src = pageInfo.url;
+                iframe.onload = setupIframeInteraction;
+            }
+
+            // Show/hide service-only tabs
+            const isService = PE_SERVICE_PAGES.includes(pageId);
+            ['pe-sel-packages', 'pe-sel-slideshow', 'pe-jmp-packages', 'pe-jmp-slideshow'].forEach(id => {
+                const el = document.getElementById(id);
+                if (el) el.style.display = isService ? '' : 'none';
+            });
+
+            // Default to hero pane
+            selectPeZone('hero', document.getElementById('pe-sel-hero'));
+
+            // Load page content from DB
+            try {
+                const res = await fetch('/api/page-content/' + pageId);
+                const data = await res.json();
+                pePageDataCache[pageId] = data;
+                fillPeEditor(data);
+            } catch (e) { fillPeEditor({}); }
+
+            // For service pages, also load packages
+            if (isService) loadPePackages(pageId);
+        }
+
+        // Select section zone: highlight tab, show right pane, jump iframe
+        function selectPeZone(zone, btn) {
+            // Right tabs
+            document.querySelectorAll('.pe-sel-btn').forEach(b => b.classList.remove('active'));
+            if (btn) btn.classList.add('active');
+
+            // Left jump nav
+            document.querySelectorAll('.pe-jump-btn').forEach(b => b.classList.remove('active'));
+            const jmpBtn = document.getElementById('pe-jmp-' + zone) ||
+                [...document.querySelectorAll('.pe-jump-btn')].find(b => b.textContent.toLowerCase().includes(zone));
+            if (jmpBtn) jmpBtn.classList.add('active');
+
+            // Show/hide panes
+            ['hero', 'slideshow', 'packages', 'gallery', 'contact'].forEach(p => {
+                const el = document.getElementById('pe-pane-' + p);
+                if (el) el.style.display = (p === zone) ? 'block' : 'none';
+            });
+
+            // Scroll iframe to section
+            jumpIframeTo(zone);
+        }
+
+        // Jump the iframe scroll to a named section
+        function jumpIframeTo(zone) {
+            try {
+                const iframe = document.getElementById('pe-page-iframe');
+                if (!iframe || !iframe.contentDocument) return;
+                const doc = iframe.contentDocument;
+                const targetMap = {
+                    hero: ['#hero', '.hero', '.hero-section', '.banner', 'header'],
+                    slideshow: ['#slideshow', '.slideshow', '.swiper', '.carousel', '.slider', '.hero-slider'],
+                    packages: ['#packages', '.packages', '.service-packages', '.package-grid', '.packages-section'],
+                    gallery: ['#gallery', '.gallery', '.gallery-section', '.photo-gallery'],
+                    contact: ['#contact', '.contact', '.contact-section', 'footer']
+                };
+                const selectors = targetMap[zone] || [];
+                let found = false;
+                for (const sel of selectors) {
+                    const el = doc.querySelector(sel);
+                    if (el) {
+                        el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                        found = true;
+                        break;
+                    }
+                }
+                // Fallback: scroll to approximate position
+                if (!found) {
+                    const yMap = { hero: 0, slideshow: 100, packages: 500, gallery: 800, contact: 1200 };
+                    iframe.contentWindow.scrollTo({ top: yMap[zone] || 0, behavior: 'smooth' });
+                }
+            } catch (e) {
+                // Cross-origin or not loaded â€” try after delay
+                setTimeout(() => {
+                    try {
+                        const iframe = document.getElementById('pe-page-iframe');
+                        const yMap = { hero: 0, slideshow: 100, packages: 500, gallery: 800, contact: 1200 };
+                        if (iframe && iframe.contentWindow) {
+                            iframe.contentWindow.scrollTo({ top: yMap[zone] || 0, behavior: 'smooth' });
+                        }
+                    } catch (e2) { }
+                }, 500);
             }
         }
 
-        function removeGalleryImage(index) {
-            if (confirm('Remove this image?')) {
-                currentGalleryImages.splice(index, 1);
-                renderGallery();
+        // Left nav button: jump iframe AND switch right pane
+        function jumpAndSelect(zone, btn) {
+            document.querySelectorAll('.pe-jump-btn').forEach(b => b.classList.remove('active'));
+            if (btn) btn.classList.add('active');
+
+            const selBtn = document.getElementById('pe-sel-' + zone);
+            selectPeZone(zone, selBtn);
+        }
+
+        function switchPeTab(tabId, btn) {
+            const m = { text: 'hero', images: 'slideshow', gallery: 'gallery', contact: 'contact' };
+            selectPeZone(m[tabId] || tabId, document.getElementById('pe-sel-' + (m[tabId] || tabId)));
+        }
+
+        function fillPeEditor(data) {
+            document.getElementById('pe-hero-title').value = data.heroTitle || '';
+            document.getElementById('pe-hero-subtitle').value = data.heroSubtitle || '';
+            document.getElementById('pe-hero-text').value = (data.sections && data.sections[0]) ? (data.sections[0].text || '') : '';
+
+            const c = data.contactInfo || {};
+            document.getElementById('pe-phone1').value = c.phone1 || '';
+            document.getElementById('pe-phone2').value = c.phone2 || '';
+            document.getElementById('pe-email1').value = c.email1 || '';
+            document.getElementById('pe-email2').value = c.email2 || '';
+            document.getElementById('pe-address').value = c.address || '';
+            document.getElementById('pe-mapurl').value = c.mapUrl || '';
+
+            const heroImg = document.getElementById('pe-hero-img');
+            const heroPH = document.getElementById('pe-hero-placeholder');
+            const heroRm = document.getElementById('pe-hero-remove');
+            if (data.heroImage) {
+                heroImg.src = data.heroImage; heroImg.style.display = 'block';
+                heroPH.style.display = 'none'; heroRm.style.display = 'inline-flex';
+            } else {
+                heroImg.style.display = 'none'; heroPH.style.display = 'flex'; heroRm.style.display = 'none';
+            }
+
+            renderPeGallery(data);
+            renderPeSlideshow(data);
+        }
+
+        function renderPeGallery(data) {
+            const grid = document.getElementById('pe-gallery-grid');
+            let allImages = [];
+            if (data.sections) data.sections.forEach(s => { if (s.images) allImages = allImages.concat(s.images); });
+            if (allImages.length === 0) {
+                grid.innerHTML = '<p class="text-white-50 small py-3">No gallery images yet. Click "Add Image" to upload.</p>';
+                return;
+            }
+            grid.innerHTML = allImages.map(img => `
+                <div class="pe-gal-item">
+                    <img src="${img}" alt="">
+                    <div class="pe-gal-remove" onclick="removePeGalleryImage('${img}')">
+                        <span><i class="fas fa-trash me-1"></i>Remove</span>
+                    </div>
+                </div>`).join('');
+        }
+
+        function renderPeSlideshow(data) {
+            const grid = document.getElementById('pe-slide-grid');
+            if (!grid) return;
+            // Slideshow images are stored in sections[sectionId='slideshow'] or sections[0].images
+            let slides = [];
+            if (data.sections) {
+                const ssSec = data.sections.find(s => s.sectionId === 'slideshow');
+                if (ssSec && ssSec.images) slides = ssSec.images;
+                else if (data.sections[0] && data.sections[0].images) slides = data.sections[0].images;
+            }
+            if (slides.length === 0) {
+                grid.innerHTML = '<p class="text-white-50 small">No slideshow images yet. Click "Add Slide Image" to upload.</p>';
+                return;
+            }
+            grid.innerHTML = slides.map(img => `
+                <div class="pe-gal-item">
+                    <img src="${img}" alt="">
+                    <div class="pe-gal-remove" onclick="removePeSlideImage('${img}')">
+                        <span><i class="fas fa-trash me-1"></i>Remove</span>
+                    </div>
+                </div>`).join('');
+        }
+
+        // ======= PACKAGES =======
+        let pePackages = [];
+
+        async function loadPePackages(pageId) {
+            const cat = PE_CATEGORY_MAP[pageId] || pageId;
+            const list = document.getElementById('pe-pkg-list');
+            if (!list) return;
+            try {
+                const res = await fetch('/api/services?category=' + cat);
+                pePackages = await res.json();
+                renderPePackages();
+            } catch (e) {
+                list.innerHTML = '<p class="text-danger small">Failed to load packages.</p>';
             }
         }
 
-        async function saveServiceDetails() {
-            const category = document.getElementById('serviceSelect').value;
-            const discount = document.getElementById('serviceDiscount').value;
-            const description = document.getElementById('serviceDesc').value;
+        function renderPePackages() {
+            const list = document.getElementById('pe-pkg-list');
+            if (!list) return;
+            if (pePackages.length === 0) {
+                list.innerHTML = '<p class="text-white-50 small text-center py-3">No packages yet. Click "Add New Package" below.</p>';
+                return;
+            }
+            list.innerHTML = pePackages.map((pkg, idx) => `
+                <div class="pe-pkg-card" id="pe-pkg-${pkg._id}">
+                    <div class="pe-pkg-card-hd">
+                        <span class="pe-pkg-num">Package ${idx + 1}</span>
+                        <button class="pe-pkg-del" onclick="deletePePackage('${pkg._id}')"><i class="fas fa-trash me-1"></i>Delete</button>
+                    </div>
+                    <div class="pe-pkg-body">
+                        <div class="pe-pkg-img" onclick="triggerPkgImgUpload('${pkg._id}')">
+                            ${pkg.images && pkg.images[0] ? `<img src="${pkg.images[0]}" alt="">` : `<div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;"><i class="fas fa-camera" style="color:rgba(252,220,59,0.3);font-size:1.5rem;"></i></div>`}
+                            <div class="pe-pkg-img-ov">
+                                <span><i class="fas fa-camera me-1"></i>Change</span>
+                                ${pkg.images && pkg.images[0] ? `<span class="rm" onclick="event.stopPropagation();removePkgImage('${pkg._id}')"><i class="fas fa-trash me-1"></i>Remove</span>` : ''}
+                            </div>
+                            <input type="file" id="pkg-img-${pkg._id}" accept="image/*" style="display:none" onchange="uploadPkgImage('${pkg._id}',this)">
+                        </div>
+                        <div class="pe-pkg-fields">
+                            <div>
+                                <span class="pe-pkg-lbl">Package Name</span>
+                                <input type="text" class="pe-pkg-in" id="pkg-name-${pkg._id}" value="${pkg.name || ''}" placeholder="e.g. Professional Photography">
+                            </div>
+                            <div class="pe-pkg-row2">
+                                <div>
+                                    <span class="pe-pkg-lbl">Price</span>
+                                    <input type="text" class="pe-pkg-in" id="pkg-price-${pkg._id}" value="${pkg.price || ''}" placeholder="e.g. 15,000 ₹">
+                                </div>
+                                <div>
+                                    <span class="pe-pkg-lbl">Duration</span>
+                                    <input type="text" class="pe-pkg-in" id="pkg-dur-${pkg._id}" value="${pkg.duration || ''}" placeholder="e.g. 4 Hours">
+                                </div>
+                            </div>
+                            <div>
+                                <span class="pe-pkg-lbl">Description</span>
+                                <textarea class="pe-pkg-in" id="pkg-desc-${pkg._id}" rows="2" placeholder="Package description...">${pkg.description || ''}</textarea>
+                            </div>
+                            <div>
+                                <span class="pe-pkg-lbl">Features (one per line)</span>
+                                <textarea class="pe-pkg-in" id="pkg-feat-${pkg._id}" rows="2" placeholder="Feature 1&#10;Feature 2">${(pkg.features || []).join('\n')}</textarea>
+                            </div>
+                            <div class="pe-pkg-save-row">
+                                <button class="pe-pkg-save" onclick="savePePackage('${pkg._id}')"><i class="fas fa-save me-1"></i>Save Package</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>`).join('');
+        }
 
-            // Use global array
-            const images = currentGalleryImages;
+        function triggerPkgImgUpload(id) {
+            const input = document.getElementById('pkg-img-' + id);
+            if (input) input.click();
+        }
 
-            const payload = {
-                category,
-                discount,
-                description,
-                images
-            };
+        async function uploadPkgImage(id, input) {
+            if (!input.files[0]) return;
+            const formData = new FormData();
+            formData.append('image', input.files[0]);
+            showPeToast('🚀 Uploading...');
+            try {
+                const uploadRes = await fetch('/api/admin/upload', { method: 'POST', body: formData });
+                const uploadData = await uploadRes.json();
+                if (!uploadData.success) { showPeToast('❌ Upload failed', true); return; }
+                const pkg = pePackages.find(p => p._id === id);
+                if (!pkg) return;
+                pkg.images = [uploadData.imageUrl];
+                const saveRes = await fetch('/api/services/' + id, {
+                    method: 'PUT', headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ images: [uploadData.imageUrl] })
+                });
+                if ((await saveRes.json()).success !== false) {
+                    renderPePackages(); showPeToast('✅ Package image updated!');
+                }
+            } catch (e) { showPeToast('❌ Error', true); }
+            input.value = '';
+        }
 
-            const btn = document.querySelector('#manage-content button');
-            const originalText = btn.innerHTML;
-            btn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Saving...';
-            btn.disabled = true;
+        async function removePkgImage(id) {
+            const pkg = pePackages.find(p => p._id === id);
+            if (!pkg) return;
+            pkg.images = [];
+            await fetch('/api/services/' + id, { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ images: [] }) });
+            renderPePackages(); showPeToast('🗑️ Image removed');
+        }
 
+        async function savePePackage(id) {
+            const name = document.getElementById('pkg-name-' + id)?.value || '';
+            const price = document.getElementById('pkg-price-' + id)?.value || '';
+            const dur = document.getElementById('pkg-dur-' + id)?.value || '';
+            const desc = document.getElementById('pkg-desc-' + id)?.value || '';
+            const feat = (document.getElementById('pkg-feat-' + id)?.value || '').split('\n').map(f => f.trim()).filter(Boolean);
+            try {
+                const res = await fetch('/api/services/' + id, {
+                    method: 'PUT', headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ name, price, duration: dur, description: desc, features: feat })
+                });
+                if ((await res.json()).success !== false) {
+                    const pkg = pePackages.find(p => p._id === id);
+                    if (pkg) { pkg.name = name; pkg.price = price; pkg.duration = dur; pkg.description = desc; pkg.features = feat; }
+                    showPeToast('✅ Package saved!');
+                } else showPeToast('❌ Save failed', true);
+            } catch (e) { showPeToast('❌ Connection error', true); }
+        }
+
+        async function deletePePackage(id) {
+            if (!confirm('Delete this package permanently?')) return;
+            try {
+                await fetch('/api/services/' + id, { method: 'DELETE' });
+                pePackages = pePackages.filter(p => p._id !== id);
+                renderPePackages(); showPeToast('🗑️ Package deleted');
+            } catch (e) { showPeToast('❌ Error', true); }
+        }
+
+        async function addNewPePackage() {
+            if (!peCurrentPage) return;
+            const cat = PE_CATEGORY_MAP[peCurrentPage] || peCurrentPage;
+            const newPkg = { name: 'New Package', price: '', description: '', features: [], images: [], category: cat };
             try {
                 const res = await fetch('/api/services', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(payload)
+                    method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(newPkg)
                 });
-
-                if (res.ok) {
-                    alert('Content updated successfully!');
-                } else {
-                    alert('Failed to update content.');
-                }
-            } catch (error) {
-                console.error(error);
-                alert('Error saving data.');
-            } finally {
-                btn.innerHTML = originalText;
-                btn.disabled = false;
-            }
+                const data = await res.json();
+                if (data._id || data.success) {
+                    await loadPePackages(peCurrentPage); showPeToast('✅ New package added!');
+                } else showPeToast('❌ Failed to add', true);
+            } catch (e) { showPeToast('❌ Error', true); }
         }
 
-        // Init
-        loadData();
-        // Trigger load for default selection
-        // We'll call this only when the section is shown to avoid unnecessary calls?
-        // Or just let the user triggering 'change' do it.
-        // But initial state should be loaded.
-        // Let's hook it into showSection or just call it if Manage Content is active (it's not by default).
+        // ======= SLIDESHOW IMAGE HANDLERS =======
+        async function uploadPeSlideImage(input) {
+            if (!input.files[0] || !peCurrentPage) return;
+            const formData = new FormData();
+            formData.append('image', input.files[0]);
+            showPeToast('🚀 Uploading...');
+            try {
+                const uploadRes = await fetch('/api/admin/upload', { method: 'POST', body: formData });
+                const uploadData = await uploadRes.json();
+                if (!uploadData.success) { showPeToast('❌ Upload failed', true); return; }
+                const cached = pePageDataCache[peCurrentPage] || {};
+                let sections = JSON.parse(JSON.stringify(cached.sections || []));
+                let ssSec = sections.find(s => s.sectionId === 'slideshow');
+                if (!ssSec) { ssSec = { sectionId: 'slideshow', title: 'Slideshow', images: [], videos: [] }; sections.unshift(ssSec); }
+                ssSec.images.push(uploadData.imageUrl);
+                const saveRes = await fetch('/api/page-content/' + peCurrentPage, {
+                    method: 'POST', headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ ...cached, pageId: peCurrentPage, sections })
+                });
+                const saved = await saveRes.json();
+                if (saved.success) { pePageDataCache[peCurrentPage] = saved.page; renderPeSlideshow(saved.page); showPeToast('✅ Slide image added!'); }
+            } catch (e) { showPeToast('❌ Upload error', true); }
+            input.value = '';
+        }
+
+        async function removePeSlideImage(imageUrl) {
+            if (!peCurrentPage || !confirm('Remove this slide image?')) return;
+            const cached = pePageDataCache[peCurrentPage] || {};
+            let sections = JSON.parse(JSON.stringify(cached.sections || []));
+            sections.forEach(s => { if (s.images) s.images = s.images.filter(img => img !== imageUrl); });
+            try {
+                const res = await fetch('/api/page-content/' + peCurrentPage, {
+                    method: 'POST', headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ ...cached, pageId: peCurrentPage, sections })
+                });
+                const data = await res.json();
+                if (data.success) { pePageDataCache[peCurrentPage] = data.page; renderPeSlideshow(data.page); showPeToast('🗑️ Slide removed'); }
+            } catch (e) { showPeToast('❌ Error', true); }
+        }
+
+        // ======= EXISTING FUNCTIONS (kept) =======
+        function closePeEditor() {
+            document.getElementById('pe-page-grid').style.display = 'grid';
+            document.getElementById('pe-editor-panel').style.display = 'none';
+            const iframe = document.getElementById('pe-page-iframe');
+            if (iframe) iframe.src = 'about:blank';
+            peCurrentPage = null;
+            peLoaded = false;
+            renderPageCards();
+        }
+
+        async function savePeText() {
+            if (!peCurrentPage) return;
+            const cached = pePageDataCache[peCurrentPage] || {};
+            let sections = JSON.parse(JSON.stringify(cached.sections || []));
+            if (sections.length === 0) sections.push({ sectionId: 'main', title: '', images: [], videos: [] });
+            sections[0].text = document.getElementById('pe-hero-text').value;
+            const payload = {
+                pageId: peCurrentPage,
+                pageName: (PE_PAGES.find(p => p.id === peCurrentPage) || {}).name || peCurrentPage,
+                heroTitle: document.getElementById('pe-hero-title').value,
+                heroSubtitle: document.getElementById('pe-hero-subtitle').value,
+                heroImage: cached.heroImage || '', sections,
+                contactInfo: cached.contactInfo || {}
+            };
+            try {
+                const res = await fetch('/api/page-content/' + peCurrentPage, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
+                const data = await res.json();
+                if (data.success) { pePageDataCache[peCurrentPage] = data.page; showPeToast('✅ Text saved!'); }
+                else showPeToast('❌ Failed to save', true);
+            } catch (e) { showPeToast('❌ Connection error', true); }
+        }
+
+        async function savePeContact() {
+            if (!peCurrentPage) return;
+            const cached = pePageDataCache[peCurrentPage] || {};
+            const payload = {
+                ...cached, pageId: peCurrentPage, contactInfo: {
+                    phone1: document.getElementById('pe-phone1').value,
+                    phone2: document.getElementById('pe-phone2').value,
+                    email1: document.getElementById('pe-email1').value,
+                    email2: document.getElementById('pe-email2').value,
+                    address: document.getElementById('pe-address').value,
+                    mapUrl: document.getElementById('pe-mapurl').value
+                }
+            };
+            try {
+                const res = await fetch('/api/page-content/' + peCurrentPage, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
+                const data = await res.json();
+                if (data.success) { pePageDataCache[peCurrentPage] = data.page; showPeToast('✅ Contact info saved!'); }
+                else showPeToast('❌ Failed to save', true);
+            } catch (e) { showPeToast('❌ Connection error', true); }
+        }
+
+        async function uploadPeHeroImage(input) {
+            if (!input.files[0] || !peCurrentPage) return;
+            const formData = new FormData();
+            formData.append('image', input.files[0]);
+            showPeToast('🚀 Uploading...');
+            try {
+                const uploadRes = await fetch('/api/admin/upload', { method: 'POST', body: formData });
+                const uploadData = await uploadRes.json();
+                if (!uploadData.success) { showPeToast('❌ Upload failed', true); return; }
+                const cached = pePageDataCache[peCurrentPage] || {};
+                const saveRes = await fetch('/api/page-content/' + peCurrentPage, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ ...cached, pageId: peCurrentPage, heroImage: uploadData.imageUrl }) });
+                const saved = await saveRes.json();
+                if (saved.success) { pePageDataCache[peCurrentPage] = saved.page; fillPeEditor(saved.page); showPeToast('✅ Hero image updated!'); }
+            } catch (e) { showPeToast('❌ Upload error', true); }
+            input.value = '';
+        }
+
+        async function removePeHeroImage() {
+            if (!peCurrentPage) return;
+            const cached = pePageDataCache[peCurrentPage] || {};
+            try {
+                const res = await fetch('/api/page-content/' + peCurrentPage, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ ...cached, pageId: peCurrentPage, heroImage: '' }) });
+                const data = await res.json();
+                if (data.success) { pePageDataCache[peCurrentPage] = data.page; fillPeEditor(data.page); showPeToast('🗑️ Hero image removed'); }
+            } catch (e) { showPeToast('❌ Error', true); }
+        }
+
+        async function uploadPeGalleryImage(input) {
+            if (!input.files[0] || !peCurrentPage) return;
+            const formData = new FormData();
+            formData.append('image', input.files[0]);
+            showPeToast('🚀 Uploading...');
+            try {
+                const uploadRes = await fetch('/api/admin/upload', { method: 'POST', body: formData });
+                const uploadData = await uploadRes.json();
+                if (!uploadData.success) { showPeToast('❌ Upload failed', true); return; }
+                const cached = pePageDataCache[peCurrentPage] || {};
+                let sections = JSON.parse(JSON.stringify(cached.sections || []));
+                let gallerySection = sections.find(s => s.sectionId === 'gallery');
+                if (!gallerySection) { gallerySection = { sectionId: 'gallery', title: 'Gallery', images: [], videos: [] }; sections.push(gallerySection); }
+                gallerySection.images.push(uploadData.imageUrl);
+                const saveRes = await fetch('/api/page-content/' + peCurrentPage, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ ...cached, pageId: peCurrentPage, sections }) });
+                const saved = await saveRes.json();
+                if (saved.success) { pePageDataCache[peCurrentPage] = saved.page; renderPeGallery(saved.page); showPeToast('✅ Image added!'); }
+            } catch (e) { showPeToast('❌ Upload error', true); }
+            input.value = '';
+        }
+
+        async function removePeGalleryImage(imageUrl) {
+            if (!peCurrentPage || !confirm('Remove this image?')) return;
+            const cached = pePageDataCache[peCurrentPage] || {};
+            let sections = JSON.parse(JSON.stringify(cached.sections || []));
+            sections.forEach(s => { if (s.images) s.images = s.images.filter(img => img !== imageUrl); });
+            try {
+                const res = await fetch('/api/page-content/' + peCurrentPage, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ ...cached, pageId: peCurrentPage, sections }) });
+                const data = await res.json();
+                if (data.success) { pePageDataCache[peCurrentPage] = data.page; renderPeGallery(data.page); showPeToast('🗑️ Image removed'); }
+            } catch (e) { showPeToast('❌ Error', true); }
+        }
+
+        let peToastTimer = null;
+        function showPeToast(msg, isError = false) {
+            const toast = document.getElementById('pe-toast');
+            if (!toast) return;
+            toast.innerHTML = (isError ? '<i class="fas fa-exclamation-circle"></i> ' : '<i class="fas fa-check-circle"></i> ') + msg;
+            toast.className = 'pe-toast active' + (isError ? ' error' : '');
+            if (peToastTimer) clearTimeout(peToastTimer);
+            peToastTimer = setTimeout(() => toast.classList.remove('active'), 3000);
+        }
 
     </script>
+    <!-- Bootstrap Bundle -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 
 </html>

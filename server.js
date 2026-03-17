@@ -12,6 +12,20 @@ const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
 // ===== MIDDLEWARE =====
 app.use(cors());
 app.use(express.json());
+
+// Content Security Policy (CSP) to fix console errors
+app.use((req, res, next) => {
+    res.setHeader(
+        'Content-Security-Policy',
+        "default-src 'self' evolved-boa-1.accounts.dev evolved-boa-1.clerk.accounts.dev cdn.jsdelivr.net js.sentry-cdn.com browser.sentry-cdn.com *.sentry.io challenges.cloudflare.com scdn.clerk.com segapi.clerk.com https://*.protect.clerk.com https://*.client.protect.clerk.com https://clerk-telemetry.com https://clerk.com https://api.stripe.com https://maps.googleapis.com https://*.js.stripe.com https://js.stripe.com https://img.clerk.com https://images.clerk.dev https://images.clerkstage.dev; " +
+        "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdn.jsdelivr.net https://*.clerk.accounts.dev https://challenges.cloudflare.com https://clerk.com; " +
+        "style-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://fonts.googleapis.com https://cdnjs.cloudflare.com; " +
+        "font-src 'self' https://fonts.gstatic.com https://cdnjs.cloudflare.com data:; " +
+        "img-src 'self' data: https://img.clerk.com https://images.clerk.dev https://i.imgur.com; " +
+        "connect-src 'self' https://*.clerk.accounts.dev https://clerk-telemetry.com https://*.clerk.com https://clerk.com;"
+    );
+    next();
+});
 app.use(express.static(path.join(__dirname, '.')));
 app.use(express.static(path.join(__dirname, 'public')));
 
@@ -29,14 +43,25 @@ app.use((req, res, next) => {
 console.log('🔌 Connecting to MongoDB...');
 console.log('📍 URI:', process.env.MONGODB_URI ? 'Found in .env' : '❌ MISSING IN .env');
 
-mongoose.connect(process.env.MONGODB_URI, {
-    serverSelectionTimeoutMS: 5000,
-    socketTimeoutMS: 45000,
-})
-    .then(async () => {
+// Set global mongoose buffer timeout to 30s (prevents buffering timeout errors)
+mongoose.set('bufferTimeoutMS', 30000);
+
+const mongoConnectOptions = {
+    serverSelectionTimeoutMS: 30000,  // Wait up to 30s to find a server
+    socketTimeoutMS: 60000,           // 60s for socket operations
+    connectTimeoutMS: 30000,          // 30s to establish initial connection
+    heartbeatFrequencyMS: 10000,      // Check connection every 10s
+    maxPoolSize: 10,                  // Max 10 concurrent connections
+    retryWrites: true,
+    retryReads: true,
+};
+
+async function connectMongoDB() {
+    try {
+        await mongoose.connect(process.env.MONGODB_URI, mongoConnectOptions);
         console.log('✅ MongoDB Connected Successfully!');
         console.log('📊 Database:', mongoose.connection.name);
-        
+
         try {
             // Fix: Drop problematic legacy 'username' index if it exists
             const collections = await mongoose.connection.db.listCollections({ name: 'users' }).toArray();
@@ -51,11 +76,14 @@ mongoose.connect(process.env.MONGODB_URI, {
         } catch (e) {
             console.log('⚠️ Index cleanup info:', e.message);
         }
-    })
-    .catch(err => {
+    } catch (err) {
         console.error('❌ MongoDB Connection FAILED:', err.message);
-        console.error('💡 Check your .env file and MongoDB Atlas settings');
-    });
+        console.error('💡 Retrying in 10 seconds...');
+        setTimeout(connectMongoDB, 10000); // Auto-retry after 10s
+    }
+}
+
+connectMongoDB();
 
 // Monitor MongoDB connection status
 mongoose.connection.on('connected', () => {
@@ -63,12 +91,14 @@ mongoose.connection.on('connected', () => {
 });
 
 mongoose.connection.on('error', (err) => {
-    console.error('🔴 Mongoose connection error:', err);
+    console.error('🔴 Mongoose connection error:', err.message);
 });
 
 mongoose.connection.on('disconnected', () => {
-    console.log('🟡 Mongoose disconnected from MongoDB');
+    console.log('🟡 Mongoose disconnected — attempting reconnect in 5s...');
+    setTimeout(connectMongoDB, 5000); // Auto-reconnect after 5s
 });
+
 
 // ===== SCHEMAS =====
 const userSchema = new mongoose.Schema({
@@ -130,11 +160,11 @@ app.post('/api/admin/login', (req, res) => {
     const { username, password } = req.body;
     console.log(`🔐 Admin login attempt: ${username}`);
     
-    // Check credentials (Hardcoded as requested + .env fallback)
-    if ((username === 'tamil' && password === '123') || 
+    // Check credentials (Hardcoded + .env fallback)
+    if ((username === 'Omservice' && password === 'Om2026') || 
         (username === process.env.ADMIN_USERNAME && password === process.env.ADMIN_PASSWORD)) {
         console.log('✅ Admin login successful');
-        res.json({ success: true, message: 'Welcome Tamil!' });
+        res.json({ success: true, message: 'Welcome Om Service Admin!' });
     } else {
         console.log('❌ Admin login failed');
         res.status(401).json({ success: false, message: 'Invalid Admin Credentials' });
@@ -472,16 +502,119 @@ app.post('/api/join', upload.array('images', 5), async (req, res) => {
     }
 });
 
+// Get all partner applications (admin)
+const sendApprovalEmail = require('./utils/sendApprovalEmail');
+const sendPartnerCodeEmail = require('./utils/sendPartnerCodeEmail');
+
+app.get('/api/partners', async (req, res) => {
+    try {
+        console.log('📋 Fetching all partner applications...');
+        const partners = await Partner.find().sort({ createdAt: -1 });
+        console.log(`✅ Found ${partners.length} partner applications`);
+        res.json(partners);
+    } catch (err) {
+        console.error('❌ Partners fetch error:', err);
+        res.status(500).json({ error: 'Failed to fetch partners' });
+    }
+});
+
+// Get approved partners for public pages
+app.get('/api/partners/approved', async (req, res) => {
+    try {
+        const { category } = req.query;
+        let query = { status: 'Approved' };
+        if (category) {
+            query.category = new RegExp('^' + category + '$', 'i'); // Case-insensitive exact match
+        }
+        const partners = await Partner.find(query).sort({ updatedAt: -1 });
+        res.json(partners);
+    } catch (err) {
+        console.error('❌ Approved partners fetch error:', err);
+        res.status(500).json({ error: 'Failed to fetch approved partners' });
+    }
+});
+
+// Delete a partner application
+app.delete('/api/partners/:id', async (req, res) => {
+    try {
+        const deleted = await Partner.findByIdAndDelete(req.params.id);
+        if (!deleted) return res.status(404).json({ error: 'Not found' });
+        console.log('✅ Partner deleted:', req.params.id);
+        res.json({ success: true });
+    } catch (err) {
+        console.error('❌ Partner delete error:', err);
+        res.status(500).json({ error: 'Delete failed' });
+    }
+});
+
+// Approve a partner
+app.put('/api/partners/:id/approve', async (req, res) => {
+    try {
+        const { adminNote } = req.body;
+        const partner = await Partner.findByIdAndUpdate(
+            req.params.id,
+            { status: 'Approved', adminNote: adminNote || '', updatedAt: Date.now() },
+            { new: true }
+        );
+        if (!partner) return res.status(404).json({ error: 'Not found' });
+        
+        // Send approval email
+        if (partner.email) {
+            sendApprovalEmail(partner.email, partner, true, adminNote || '')
+                .catch(e => console.error('Approval email failed:', e));
+        }
+
+        // Send the HTML code snippet to the Admin directly
+        sendPartnerCodeEmail(partner)
+            .catch(e => console.error('Admin Code snippet email failed:', e));
+
+        
+        console.log('✅ Partner approved:', partner.name);
+        res.json({ success: true, partner });
+    } catch (err) {
+        console.error('❌ Partner approve error:', err);
+        res.status(500).json({ error: 'Approve failed' });
+    }
+});
+
+// Reject a partner
+app.put('/api/partners/:id/reject', async (req, res) => {
+    try {
+        const { adminNote } = req.body;
+        const partner = await Partner.findByIdAndUpdate(
+            req.params.id,
+            { status: 'Rejected', adminNote: adminNote || '', updatedAt: Date.now() },
+            { new: true }
+        );
+        if (!partner) return res.status(404).json({ error: 'Not found' });
+        
+        // Send rejection email
+        if (partner.email) {
+            sendApprovalEmail(partner.email, partner, false, adminNote || '')
+                .catch(e => console.error('Rejection email failed:', e));
+        }
+        
+        console.log('✅ Partner rejected:', partner.name);
+        res.json({ success: true, partner });
+    } catch (err) {
+        console.error('❌ Partner reject error:', err);
+        res.status(500).json({ error: 'Reject failed' });
+    }
+});
+
 // ===== SERVICE SCHEMA & ROUTES =====
 const serviceSchema = new mongoose.Schema({
-    category: { type: String, required: true, unique: true }, // 'catering', 'photography', 'sweets', 'travel'
-    images: [String], // Array of image URLs/paths
-    discount: String, // e.g., "10% OFF"
-    description: String,
-    packages: [{ // Optional: for detailed package management if needed later
+    category: { type: String, required: true, unique: true },
+    images: [String],        // Slideshow images
+    discount: String,        // Banner discount text
+    description: String,     // Banner tagline
+    packages: [{             // Service packages (cards shown on page)
         name: String,
-        price: String,
-        features: [String]
+        badge: String,       // e.g. "Professional", "Best Value"
+        image: String,       // Package card image URL
+        description: String, // Short description shown on card
+        price: String,       // e.g. "Starts at ₹10,000"
+        features: [String]   // Bullet list in detail modal
     }],
     updatedAt: { type: Date, default: Date.now }
 });
@@ -528,6 +661,236 @@ app.post('/api/services', async (req, res) => {
     } catch (err) {
         console.error('❌ Service update error:', err);
         res.status(500).json({ error: 'Failed to update service' });
+    }
+});
+
+// Remove a specific image from a service gallery
+app.delete('/api/services/:category/image', async (req, res) => {
+    try {
+        const { category } = req.params;
+        const { imageUrl } = req.body;
+        console.log(`🗑️ Removing image from ${category}: ${imageUrl}`);
+
+        const service = await Service.findOne({ category });
+        if (!service) {
+            return res.status(404).json({ error: 'Service not found' });
+        }
+
+        service.images = service.images.filter(img => img !== imageUrl);
+        service.updatedAt = Date.now();
+        await service.save();
+
+        console.log('✅ Image removed successfully');
+        res.json({ success: true, service });
+    } catch (err) {
+        console.error('❌ Image remove error:', err);
+        res.status(500).json({ error: 'Failed to remove image' });
+    }
+});
+
+// Replace a specific image in a service gallery (upload new + update DB position)
+app.post('/api/services/:category/image/update', upload.single('image'), async (req, res) => {
+    try {
+        const { category } = req.params;
+        const { oldImageUrl } = req.body;
+
+        if (!req.file) {
+            return res.status(400).json({ error: 'No file uploaded' });
+        }
+
+        const newImageUrl = '/uploads/' + req.file.filename;
+        console.log(`🔄 Replacing image in ${category}: ${oldImageUrl} → ${newImageUrl}`);
+
+        const service = await Service.findOne({ category });
+        if (!service) {
+            return res.status(404).json({ error: 'Service not found' });
+        }
+
+        const idx = service.images.indexOf(oldImageUrl);
+        if (idx !== -1) {
+            service.images[idx] = newImageUrl;
+        } else {
+            service.images.push(newImageUrl);
+        }
+        service.updatedAt = Date.now();
+        service.markModified('images');
+        await service.save();
+
+        console.log('✅ Image replaced successfully');
+        res.json({ success: true, newImageUrl, service });
+    } catch (err) {
+        console.error('❌ Image replace error:', err);
+        res.status(500).json({ error: 'Failed to replace image' });
+    }
+});
+
+// Add a new image to a service gallery
+app.post('/api/services/:category/image/add', upload.single('image'), async (req, res) => {
+    try {
+        const { category } = req.params;
+
+        if (!req.file) {
+            return res.status(400).json({ error: 'No file uploaded' });
+        }
+
+        const newImageUrl = '/uploads/' + req.file.filename;
+        console.log(`➕ Adding image to ${category}: ${newImageUrl}`);
+
+        const service = await Service.findOneAndUpdate(
+            { category },
+            { $push: { images: newImageUrl }, $set: { updatedAt: Date.now() } },
+            { new: true, upsert: true }
+        );
+
+        console.log('✅ Image added successfully');
+        res.json({ success: true, newImageUrl, service });
+    } catch (err) {
+        console.error('❌ Image add error:', err);
+        res.status(500).json({ error: 'Failed to add image' });
+    }
+});
+
+// ===== PAGE CONTENT SCHEMA & ROUTES =====
+const pageContentSchema = new mongoose.Schema({
+    pageId: { type: String, required: true, unique: true }, // e.g. 'home', 'about', 'contact'
+    pageName: String,
+    heroImage: String,
+    heroTitle: String,
+    heroSubtitle: String,
+    sections: [{
+        sectionId: String,
+        title: String,
+        subtitle: String,
+        text: String,
+        images: [String],
+        videos: [String],
+        items: [mongoose.Schema.Types.Mixed]
+    }],
+    contactInfo: {
+        phone1: String,
+        phone2: String,
+        email1: String,
+        email2: String,
+        address: String,
+        mapUrl: String
+    },
+    dynamicMap: { type: mongoose.Schema.Types.Mixed, default: {} },
+    updatedAt: { type: Date, default: Date.now }
+});
+
+const PageContent = mongoose.model('PageContent', pageContentSchema);
+
+// Get all page contents
+app.get('/api/page-content', async (req, res) => {
+    try {
+        const pages = await PageContent.find();
+        res.json(pages);
+    } catch (err) {
+        console.error('❌ Page content fetch error:', err);
+        res.status(500).json({ error: 'Failed to fetch page content' });
+    }
+});
+
+// Get single page content by ID
+app.get('/api/page-content/:pageId', async (req, res) => {
+    try {
+        const page = await PageContent.findOne({ pageId: req.params.pageId });
+        res.json(page || {});
+    } catch (err) {
+        console.error('❌ Page content fetch error:', err);
+        res.status(500).json({ error: 'Failed to fetch page content' });
+    }
+});
+
+// Update page content (upsert)
+app.post('/api/page-content/:pageId', async (req, res) => {
+    try {
+        const { pageId } = req.params;
+        const updateData = { ...req.body, updatedAt: Date.now() };
+        console.log(`📄 Updating page content: ${pageId}`);
+
+        const page = await PageContent.findOneAndUpdate(
+            { pageId },
+            { $set: updateData },
+            { new: true, upsert: true, setDefaultsOnInsert: true }
+        );
+        console.log('✅ Page content updated');
+        res.json({ success: true, page });
+    } catch (err) {
+        console.error('❌ Page content update error:', err);
+        res.status(500).json({ error: 'Failed to update page content' });
+    }
+});
+
+// Upload image for page content
+app.post('/api/page-content/:pageId/upload', upload.single('image'), async (req, res) => {
+    try {
+        if (!req.file) return res.status(400).json({ error: 'No file uploaded' });
+        const imageUrl = '/uploads/' + req.file.filename;
+        const { pageId } = req.params;
+        const { sectionId, field } = req.body;
+
+        console.log(`📸 Page image upload: ${pageId}/${sectionId || field}`);
+
+        let updateQuery = {};
+        if (sectionId) {
+            // Add to a section's images array
+            const page = await PageContent.findOne({ pageId });
+            if (page) {
+                const section = page.sections.find(s => s.sectionId === sectionId);
+                if (section) {
+                    section.images.push(imageUrl);
+                    page.updatedAt = Date.now();
+                    await page.save();
+                    return res.json({ success: true, imageUrl, page });
+                }
+            }
+            // Upsert with new section
+            updateQuery = {
+                $push: { 'sections': { sectionId, images: [imageUrl] } },
+                $set: { updatedAt: Date.now() }
+            };
+        } else if (field === 'heroImage') {
+            updateQuery = { $set: { heroImage: imageUrl, updatedAt: Date.now() } };
+        } else {
+            return res.json({ success: true, imageUrl });
+        }
+
+        const updated = await PageContent.findOneAndUpdate(
+            { pageId },
+            updateQuery,
+            { new: true, upsert: true }
+        );
+        res.json({ success: true, imageUrl, page: updated });
+    } catch (err) {
+        console.error('❌ Page image upload error:', err);
+        res.status(500).json({ error: 'Upload failed' });
+    }
+});
+
+// Remove image from page section
+app.delete('/api/page-content/:pageId/image', async (req, res) => {
+    try {
+        const { pageId } = req.params;
+        const { imageUrl, sectionId, field } = req.body;
+        console.log(`🗑️ Removing page image: ${pageId}/${imageUrl}`);
+
+        const page = await PageContent.findOne({ pageId });
+        if (!page) return res.status(404).json({ error: 'Page not found' });
+
+        if (field === 'heroImage') {
+            page.heroImage = '';
+        } else if (sectionId) {
+            const section = page.sections.find(s => s.sectionId === sectionId);
+            if (section) section.images = section.images.filter(img => img !== imageUrl);
+        }
+        page.updatedAt = Date.now();
+        await page.save();
+
+        res.json({ success: true, page });
+    } catch (err) {
+        console.error('❌ Page image remove error:', err);
+        res.status(500).json({ error: 'Failed to remove image' });
     }
 });
 

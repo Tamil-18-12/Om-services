@@ -67,7 +67,7 @@
         </div>
 
         <!-- Services -->
-        <div class="row g-5 justify-content-center">
+        <div class="row g-5 justify-content-center" id="pkg-cards-row">
             <div class="col-lg-10">
                 <div class="glass-panel p-0 d-flex flex-column flex-md-row overflow-hidden hover-lift"
                     onclick="openBookingModal('Authentic Banana Leaf')">
@@ -255,23 +255,19 @@
                     if (service.images && service.images.length > 0) {
                         const container = document.querySelector('.slideshow-container');
                         const controls = container.querySelector('.slide-controls');
-
-                        // Remove old slides
                         container.querySelectorAll('.slide').forEach(el => el.remove());
-
-                        // Add new slides
                         service.images.forEach((imgUrl, index) => {
                             const slide = document.createElement('div');
                             slide.className = `slide ${index === 0 ? 'active' : ''}`;
                             slide.style.backgroundImage = `url('${imgUrl}')`;
                             container.insertBefore(slide, controls);
                         });
-
-                        // Re-init slideshow
+                        initSlideshow();
+                    } else {
                         initSlideshow();
                     }
 
-                    // 2. Show Discount Toast/Banner if exists
+                    // 2. Show Discount Banner
                     if (service.discount) {
                         const discountToast = document.createElement('div');
                         discountToast.className = 'glass-panel p-3 text-center mb-4 border-gold animation-pulse';
@@ -281,17 +277,62 @@
                             <h4 class="text-gold m-0 fw-bold"><i class="fas fa-tags me-2"></i> ${service.discount}</h4>
                             ${service.description ? `<p class="text-white-50 m-0 small mt-1">${service.description}</p>` : ''}
                         `;
-                        // Insert after hero title
                         const title = document.querySelector('.hero-title');
                         title.parentNode.insertBefore(discountToast, title.nextSibling);
                     }
+
+                    // 3. Render DB Packages (if any)
+                    if (service.packages && service.packages.length > 0) {
+                        const cardsContainer = document.getElementById('pkg-cards-row');
+                        if (cardsContainer) {
+                            window._dbPackages = service.packages;
+                            cardsContainer.innerHTML = service.packages.map((pkg, i) => {
+                                const imgSrc = pkg.image || 'https://via.placeholder.com/400x250/1e0321/fcdc3b?text=Package';
+                                return `
+                                <div class="col-lg-10">
+                                    <div class="glass-panel p-0 d-flex flex-column flex-md-row overflow-hidden hover-lift"
+                                        onclick="openDbPkgModal(${i})">
+                                        <div class="col-md-5" style="min-height:250px;">
+                                            <img src="${imgSrc}" alt="${pkg.name}" class="w-100 h-100" style="object-fit:cover;"
+                                                onerror="this.src='https://via.placeholder.com/400x250/1e0321/fcdc3b?text=${encodeURIComponent(pkg.name || 'Package')}'">
+                                        </div>
+                                        <div class="col-md-7 p-4 p-md-5 d-flex flex-column justify-content-center">
+                                            ${pkg.badge ? `<span class="badge bg-gold text-dark mb-2 align-self-start">${pkg.badge}</span>` : ''}
+                                            <h2 class="text-gold fw-bold mb-3">${pkg.name || 'Package ' + (i + 1)}</h2>
+                                            <p class="text-white-50 mb-3">${pkg.description || ''}</p>
+                                            ${pkg.price ? `<h4 class="text-white mb-4">${pkg.price}</h4>` : ''}
+                                            <button class="btn-secondary-glow align-self-start"
+                                                onclick="event.stopPropagation(); openDbPkgModal(${i})">
+                                                <i class="bi bi-info-circle me-2"></i>See Details
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>`;
+                            }).join('');
+                        }
+                    }
                 } else {
-                    initSlideshow(); // Fallback to info in HTML
+                    initSlideshow();
                 }
             } catch (e) {
                 console.error('Failed to load dynamic content', e);
                 initSlideshow();
             }
+        }
+
+        // Detail modal for DB-loaded packages
+        function openDbPkgModal(index) {
+            const pkg = window._dbPackages?.[index];
+            if (!pkg) return;
+            const content = document.getElementById('menuContent');
+            const imgHtml = pkg.image ? `<img src="${pkg.image}" class="w-100 rounded mb-4" style="max-height:260px;object-fit:cover;">` : '';
+            const featHtml = (pkg.features && pkg.features.length)
+                ? `<h5 class="text-warning mb-2">What's Included</h5><ul class="text-white-50 mb-3">${pkg.features.map(f => `<li>${f}</li>`).join('')}</ul>` : '';
+            const priceHtml = pkg.price ? `<h4 class="text-gold mt-2">${pkg.price}</h4>` : '';
+            const bookBtn = `<div class="text-center mt-4"><button class="btn-primary-glow" onclick="openBookingModal('${pkg.name}')">Book This Package</button></div>`;
+            document.querySelector('#menuModal .modal-title').textContent = pkg.name || 'Package Details';
+            content.innerHTML = imgHtml + featHtml + priceHtml + bookBtn;
+            menuModal.show();
         }
 
         // Slideshow Logic
@@ -336,7 +377,9 @@
         // Modal Logic
         const bookingModal = new bootstrap.Modal(document.getElementById('bookingModal'));
         const menuModal = new bootstrap.Modal(document.getElementById('menuModal'));
+        const successModal = new bootstrap.Modal(document.getElementById('successModal'));
         let selectedServiceType = '';
+        let isSubmitting = false;
 
         function openBookingModal(serviceName) {
             // If opening from menu modal, close it first
@@ -515,10 +558,17 @@
         async function handleBooking(e) {
             e.preventDefault();
 
-            // Collect data
-            // Collect data
+            // Prevent double submission
+            if (isSubmitting) return;
+            isSubmitting = true;
+
+            const btn = e.target.querySelector('button[type="submit"]');
+            const originalText = btn.innerHTML;
+            btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Processing...';
+            btn.disabled = true;
+
             const bookingData = {
-                clerkId: window.Clerk?.user?.id, // Optional if not logged in
+                clerkId: window.Clerk?.user?.id,
                 name: document.getElementById('name').value,
                 phone: document.getElementById('phone').value,
                 email: document.getElementById('email').value,
@@ -529,7 +579,7 @@
                 date: document.getElementById('date').value,
                 mealType: document.getElementById('mealType').value,
                 guests: document.getElementById('guests').value,
-                eventDuration: document.getElementById('eventDuration').value, // Schema expects eventDuration
+                eventDuration: document.getElementById('eventDuration').value,
                 status: 'Pending'
             };
 
@@ -544,14 +594,18 @@
 
                 if (result.success) {
                     bookingModal.hide();
-                    new bootstrap.Modal(document.getElementById('successModal')).show();
                     e.target.reset();
+                    setTimeout(() => successModal.show(), 400);
                 } else {
                     alert('Booking failed: ' + result.error);
                 }
             } catch (err) {
                 console.error(err);
-                alert('An error occurred.');
+                alert('An error occurred. Please try again.');
+            } finally {
+                btn.innerHTML = originalText;
+                btn.disabled = false;
+                isSubmitting = false;
             }
         }
 
@@ -582,6 +636,55 @@
                 }
             }
         });
+
+        // --- Live Verified Partners (Auto-Loaded from MongoDB) ---
+        async function loadLivePartners() {
+            try {
+                const category = 'Catering';
+                const res = await fetch('/api/partners/approved?category=' + category);
+                const partners = await res.json();
+
+                if (partners && partners.length > 0) {
+                    const row = document.getElementById('pkg-cards-row');
+                    if (!row) return;
+
+                    const pHTML = partners.map(p => {
+                        const img = (p.images && p.images.length > 0)
+                            ? p.images[0] : 'https://via.placeholder.com/400x250/1e0321/fcdc3b?text=' + encodeURIComponent(p.name);
+
+                        const details = [
+                            p.menuItems ? '<p class="text-white-50 mb-1"><i class="fas fa-utensils me-2 text-gold"></i>' + p.menuItems + '</p>' : '',
+                            p.address ? '<p class="text-white-50 mb-2"><i class="fas fa-map-marker-alt me-2 text-gold"></i>' + p.address + '</p>' : ''
+                        ].filter(Boolean).join('');
+
+                        return `
+                        <!-- Live Partner Injection -->
+                        <div class="col-lg-10 mt-5 pt-3 border-top border-white border-opacity-10 live-partner-anim">
+                            <div class="glass-panel p-0 d-flex flex-column flex-md-row overflow-hidden hover-lift"
+                                onclick="event.stopPropagation(); window.location.href='tel:${p.mobile}'">
+                                <div class="col-md-5" style="min-height:250px;">
+                                    <img src="${img}" alt="${p.name}" class="w-100 h-100" style="object-fit:cover;">
+                                </div>
+                                <div class="col-md-7 p-4 p-md-5 d-flex flex-column justify-content-center">
+                                    <span class="badge bg-gold text-dark mb-2 align-self-start"><i class="fas fa-check-circle me-1"></i> Verified Partner</span>
+                                    <h2 class="text-gold fw-bold mb-3">${p.name}</h2>
+                                    ${details}
+                                    <p class="text-success fw-bold mt-2" style="font-size:1.1rem;"><i class="fas fa-phone-alt me-1"></i> ${p.mobile}</p>
+                                    <button class="btn-secondary-glow align-self-start mt-2">
+                                        <i class="fas fa-phone me-1"></i> Call Contact
+                                    </button>
+                                </div>
+                            </div>
+                        </div>`;
+                    }).join('');
+
+                    row.insertAdjacentHTML('beforeend', pHTML);
+                }
+            } catch (e) { console.error('Error fetching live partners', e); }
+        }
+
+        window.addEventListener('load', () => setTimeout(loadLivePartners, 1200));
+
     </script>
 </body>
 

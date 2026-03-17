@@ -22,256 +22,8 @@
         data-clerk-publishable-key="pk_test_ZXZvbHZlZC1ib2EtMS5jbGVyay5hY2NvdW50cy5kZXYk" crossorigin="anonymous">
         </script>
 
-    <style>
-        body {
-            /* Animated gradient background */
-            background: linear-gradient(135deg, #4a1a50, #19021C, #4a1a50);
-            background-size: 200% 200%;
-            animation: gradientBG 15s ease infinite;
-            color: white;
-            min-height: 100vh;
-            font-family: 'Outfit', sans-serif;
-            overflow-x: hidden;
-        }
-
-        @keyframes gradientBG {
-            0% {
-                background-position: 0% 50%;
-            }
-
-            50% {
-                background-position: 100% 50%;
-            }
-
-            100% {
-                background-position: 0% 50%;
-            }
-        }
-
-        /* Glassmorphic Navbar */
-        nav.navbar {
-            padding: 15px 24px;
-            background: rgba(55, 2, 62, 0.7);
-            backdrop-filter: blur(10px);
-            border-bottom: 1px solid rgba(252, 220, 59, 0.2);
-            z-index: 999;
-        }
-
-        .navbar-brand img {
-            height: 54px;
-            width: 55px;
-            object-fit: cover;
-        }
-
-        .navbar-toggler {
-            border: 2px solid #fcdc3b;
-        }
-
-        .navbar-toggler-icon {
-            background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 30 30'%3e%3cpath stroke='rgba%28252, 220, 59, 1%29' stroke-linecap='round' stroke-miterlimit='10' stroke-width='2' d='M4 7h22M4 15h22M4 23h22'/%3e%3c/svg%3e");
-        }
-
-        .navbar-nav .nav-link {
-            position: relative;
-            cursor: pointer;
-            font-weight: 700;
-            padding: 8px 16px !important;
-            font-size: 1rem;
-            color: white;
-            transition: color .3s;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-        }
-
-        .navbar-nav .nav-link::after {
-            content: '';
-            display: block;
-            position: absolute;
-            left: 20%;
-            bottom: 2px;
-            width: 60%;
-            height: 3px;
-            background: #fcdc3b;
-            border-radius: 2px;
-            transform: scaleX(0);
-            transition: transform 0.3s;
-        }
-
-        .navbar-nav .nav-link:hover {
-            color: #fcdc3b;
-            background: rgba(252, 220, 59, 0.08);
-            border-radius: 20px;
-        }
-
-        .navbar-nav .nav-link:hover::after {
-            transform: scaleX(1);
-        }
-
-        .navbar-nav .nav-link.active {
-            color: #fcdc3b;
-        }
-
-        .joi {
-            padding: 6px 20px;
-            background-color: gold;
-            color: black;
-            border-radius: 30px;
-            font-size: 1rem;
-            font-weight: bold;
-            display: inline-block;
-            box-shadow: 0 4px 18px #fcdc3b59;
-            letter-spacing: 1px;
-        }
-
-        /* Glassmorphic Panel (Card) Styling - Matching .service-card from snippet */
-        .glass-panel {
-            background: rgba(255, 255, 255, 0.05);
-            /* Slightly darker for content contrast */
-            backdrop-filter: blur(12px);
-            border: 1px solid rgba(252, 220, 59, 0.3);
-            box-shadow: 0 8px 32px 0 rgba(19, 2, 28, 0.37);
-            border-radius: 22px;
-            transition: transform 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease;
-            overflow: hidden;
-            margin-bottom: 20px;
-        }
-
-        .glass-panel:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 16px 40px 0 rgba(19, 2, 28, 0.5);
-            border-color: rgba(252, 220, 59, 0.7);
-        }
-
-        .text-gold {
-            color: #fcdc3b !important;
-        }
-
-        .text-white-50 {
-            color: rgba(255, 255, 255, 0.7) !important;
-        }
-
-        .badge.bg-gold {
-            background-color: #fcdc3b !important;
-            color: black !important;
-        }
-
-        /* Buttons */
-        .btn-primary-glow {
-            background: #fcdc3b;
-            color: #000;
-            border: none;
-            padding: 12px 30px;
-            border-radius: 50px;
-            font-weight: 700;
-            text-transform: uppercase;
-            letter-spacing: 0.1em;
-            transition: all 0.3s ease;
-            box-shadow: 0 0 15px rgba(252, 220, 59, 0.4);
-        }
-
-        .btn-primary-glow:hover {
-            background: #fff;
-            transform: translateY(-2px);
-            box-shadow: 0 0 25px rgba(252, 220, 59, 0.6);
-        }
-
-        .btn-secondary-glow {
-            background: transparent;
-            color: #fcdc3b;
-            border: 2px solid #fcdc3b;
-            padding: 10px 25px;
-            border-radius: 50px;
-            font-weight: 600;
-            text-transform: uppercase;
-            letter-spacing: 0.05em;
-            transition: all 0.3s ease;
-        }
-
-        .btn-secondary-glow:hover {
-            background: #fcdc3b;
-            color: #000;
-            box-shadow: 0 0 15px rgba(252, 220, 59, 0.3);
-        }
-
-        /* Modal Overrides */
-        .modal-content {
-            background: rgba(25, 2, 28, 0.95);
-            backdrop-filter: blur(20px);
-            border: 1px solid rgba(252, 220, 59, 0.3);
-        }
-
-        .form-control,
-        .form-select {
-            background: rgba(255, 255, 255, 0.05);
-            border: 1px solid rgba(252, 220, 59, 0.3);
-            color: white;
-        }
-
-        .form-control:focus,
-        .form-select:focus {
-            background: rgba(255, 255, 255, 0.1);
-            border-color: #fcdc3b;
-            color: white;
-            box-shadow: 0 0 10px rgba(252, 220, 59, 0.3);
-        }
-
-        /* Typography */
-        h1.hero-title {
-            color: #fcdc3b;
-            text-shadow: 0 0 20px rgba(252, 220, 59, 0.5);
-            font-weight: 800;
-            text-transform: uppercase;
-            letter-spacing: 2px;
-        }
-
-        /* TOAST NOTIFICATION STYLES */
-        .toast-container {
-            position: fixed;
-            top: 20px;
-            right: 20px;
-            z-index: 9999;
-        }
-
-        .toast-notify {
-            background: rgba(25, 2, 28, 0.95);
-            color: #fff;
-            padding: 16px 24px;
-            border-radius: 12px;
-            margin-bottom: 10px;
-            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.3);
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            min-width: 300px;
-            border-left: 5px solid #D4AF37;
-            transform: translateX(120%);
-            transition: transform 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
-        }
-
-        .toast-notify.show {
-            transform: translateX(0);
-        }
-
-        .toast-notify.success {
-            border-left-color: #28a745;
-        }
-
-        .toast-notify.error {
-            border-left-color: #dc3545;
-        }
-
-        .toast-icon {
-            font-size: 1.2rem;
-        }
-
-        .toast-notify.success .toast-icon {
-            color: #28a745;
-        }
-
-        .toast-notify.error .toast-icon {
-            color: #dc3545;
-        }
-    </style>
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="css/style.css">
 </head>
 
 <body>
@@ -315,7 +67,7 @@
             </div>
         </div>
 
-        <div class="row g-5 justify-content-center mt-4">
+        <div class="row g-5 justify-content-center mt-4" id="pkg-cards-row">
 
             <div class="col-lg-10">
                 <div class="glass-panel p-0 d-flex flex-column flex-md-row overflow-hidden hover-lift"
@@ -515,23 +267,19 @@
                     if (service.images && service.images.length > 0) {
                         const container = document.querySelector('.slideshow-container');
                         const controls = container.querySelector('.slide-controls');
-
-                        // Remove old slides
                         container.querySelectorAll('.slide').forEach(el => el.remove());
-
-                        // Add new slides
                         service.images.forEach((imgUrl, index) => {
                             const slide = document.createElement('div');
                             slide.className = `slide ${index === 0 ? 'active' : ''}`;
                             slide.style.backgroundImage = `url('${imgUrl}')`;
                             container.insertBefore(slide, controls);
                         });
-
-                        // Re-init slideshow
+                        initSlideshow();
+                    } else {
                         initSlideshow();
                     }
 
-                    // 2. Show Discount Toast/Banner if exists
+                    // 2. Show Discount Banner
                     if (service.discount) {
                         const discountToast = document.createElement('div');
                         discountToast.className = 'glass-panel p-3 text-center mb-4 border-gold animation-pulse';
@@ -541,9 +289,38 @@
                             <h4 class="text-gold m-0 fw-bold"><i class="fas fa-tags me-2"></i> ${service.discount}</h4>
                             ${service.description ? `<p class="text-white-50 m-0 small mt-1">${service.description}</p>` : ''}
                         `;
-                        // Insert after hero title
                         const title = document.querySelector('.hero-title');
                         title.parentNode.insertBefore(discountToast, title.nextSibling);
+                    }
+
+                    // 3. Render Package Cards from DB (if packages exist)
+                    if (service.packages && service.packages.length > 0) {
+                        const cardsContainer = document.getElementById('pkg-cards-row');
+                        if (cardsContainer) {
+                            window._dbPackages = service.packages;
+                            cardsContainer.innerHTML = service.packages.map((pkg, i) => {
+                                const imgSrc = pkg.image || 'https://via.placeholder.com/400x250/1e0321/fcdc3b?text=Package';
+                                return `
+                                <div class="col-lg-10">
+                                    <div class="glass-panel p-0 d-flex flex-column flex-md-row overflow-hidden hover-lift"
+                                        onclick="openDbPkgModal(${i})">
+                                        <div class="col-md-5" style="min-height:250px;">
+                                            <img src="${imgSrc}" alt="${pkg.name}" class="w-100 h-100" style="object-fit:cover;"
+                                                onerror="this.src='https://via.placeholder.com/400x250/1e0321/fcdc3b?text=${encodeURIComponent(pkg.name || 'Package')}'">
+                                        </div>
+                                        <div class="col-md-7 p-4 p-md-5 d-flex flex-column justify-content-center">
+                                            ${pkg.badge ? `<span class="badge bg-gold text-dark mb-2 align-self-start">${pkg.badge}</span>` : ''}
+                                            <h2 class="text-gold fw-bold mb-3">${pkg.name || 'Package ' + (i + 1)}</h2>
+                                            <p class="text-white-50 mb-4">${pkg.description || ''}</p>
+                                            <button class="btn-secondary-glow align-self-start"
+                                                onclick="event.stopPropagation(); openDbPkgModal(${i})">
+                                                <i class="bi bi-info-circle me-2"></i>See Details
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>`;
+                            }).join('');
+                        }
                     }
                 } else {
                     initSlideshow();
@@ -552,6 +329,23 @@
                 console.error('Failed to load dynamic content', e);
                 initSlideshow();
             }
+        }
+
+        // Open detail modal for a DB-loaded package
+        function openDbPkgModal(index) {
+            const pkg = window._dbPackages?.[index];
+            if (!pkg) return;
+            const title = document.getElementById('detailTitle');
+            const content = document.getElementById('detailContent');
+            const btn = document.getElementById('detailBookBtn');
+            const imgHtml = pkg.image ? `<img src="${pkg.image}" class="w-100 rounded mb-4" style="max-height:260px;object-fit:cover;">` : '';
+            const featHtml = (pkg.features && pkg.features.length)
+                ? `<h5 class="text-warning mb-2">What's Included</h5><ul class="text-white-50 mb-3">${pkg.features.map(f => `<li>${f}</li>`).join('')}</ul>` : '';
+            const priceHtml = pkg.price ? `<h4 class="text-gold mt-2">${pkg.price}</h4>` : '';
+            title.textContent = pkg.name || 'Package Details';
+            content.innerHTML = imgHtml + featHtml + priceHtml;
+            btn.onclick = () => { detailsModal.hide(); openBookingModal(pkg.name); };
+            detailsModal.show();
         }
 
         // Slideshow
@@ -592,7 +386,9 @@
 
         const bookingModal = new bootstrap.Modal(document.getElementById('bookingModal'));
         const detailsModal = new bootstrap.Modal(document.getElementById('detailsModal'));
+        const successModal = new bootstrap.Modal(document.getElementById('successModal'));
         let currentPackage = '';
+        let isSubmitting = false;
 
         function openDetailsModal(type) {
             const title = document.getElementById('detailTitle');
@@ -723,6 +519,9 @@
         async function handleBooking(e) {
             e.preventDefault();
 
+            if (isSubmitting) return;
+            isSubmitting = true;
+
             // UI Feedback - Button Loading State
             const btn = e.target.querySelector('button[type="submit"]');
             const originalText = btn.innerHTML;
@@ -755,16 +554,9 @@
 
                 if (result.success) {
                     bookingModal.hide();
-
-                    // Show success toast instead of alert
                     showToast('Booking submitted successfully!', 'success');
-
-                    // Optional: Show success modal too after a slight delay
-                    setTimeout(() => {
-                        new bootstrap.Modal(document.getElementById('successModal')).show();
-                    }, 500);
-
                     e.target.reset();
+                    setTimeout(() => successModal.show(), 400);
                 } else {
                     showToast(result.error || 'Failed to submit booking.', 'error');
                 }
@@ -775,6 +567,7 @@
                 // Reset Button
                 btn.innerHTML = originalText;
                 btn.disabled = false;
+                isSubmitting = false;
             }
         }
 
@@ -804,6 +597,55 @@
                 }
             }
         });
+        // --- Live Verified Partners (Auto-Loaded from MongoDB) ---
+        async function loadLivePartners() {
+            try {
+                const category = 'Photography';
+                const res = await fetch('/api/partners/approved?category=' + category);
+                const partners = await res.json();
+
+                if (partners && partners.length > 0) {
+                    const row = document.getElementById('pkg-cards-row');
+                    if (!row) return;
+
+                    const pHTML = partners.map(p => {
+                        const img = (p.images && p.images.length > 0)
+                            ? p.images[0] : 'https://via.placeholder.com/400x250/1e0321/fcdc3b?text=' + encodeURIComponent(p.name);
+
+                        const details = [
+                            p.cameraModel ? '<p class="text-white-50 mb-1"><i class="fas fa-camera me-2 text-gold"></i>' + p.cameraModel + '</p>' : '',
+                            p.teamSize ? '<p class="text-white-50 mb-1"><i class="fas fa-users me-2 text-gold"></i>' + p.teamSize + ' Team Members</p>' : '',
+                            p.address ? '<p class="text-white-50 mb-2"><i class="fas fa-map-marker-alt me-2 text-gold"></i>' + p.address + '</p>' : ''
+                        ].filter(Boolean).join('');
+
+                        return `
+                        <!-- Live Partner Injection -->
+                        <div class="col-lg-10 mt-5 pt-3 border-top border-white border-opacity-10 live-partner-anim">
+                            <div class="glass-panel p-0 d-flex flex-column flex-md-row overflow-hidden hover-lift"
+                                onclick="event.stopPropagation(); window.location.href='tel:${p.mobile}'">
+                                <div class="col-md-5" style="min-height:250px;">
+                                    <img src="${img}" alt="${p.name}" class="w-100 h-100" style="object-fit:cover;">
+                                </div>
+                                <div class="col-md-7 p-4 p-md-5 d-flex flex-column justify-content-center">
+                                    <span class="badge bg-gold text-dark mb-2 align-self-start"><i class="fas fa-check-circle me-1"></i> Verified Partner</span>
+                                    <h2 class="text-gold fw-bold mb-3">${p.name}</h2>
+                                    ${details}
+                                    <p class="text-success fw-bold mt-2" style="font-size:1.1rem;"><i class="fas fa-phone-alt me-1"></i> ${p.mobile}</p>
+                                    <button class="btn-secondary-glow align-self-start mt-2">
+                                        <i class="fas fa-phone me-1"></i> Call Contact
+                                    </button>
+                                </div>
+                            </div>
+                        </div>`;
+                    }).join('');
+
+                    row.insertAdjacentHTML('beforeend', pHTML);
+                }
+            } catch (e) { console.error('Error fetching live partners', e); }
+        }
+
+        window.addEventListener('load', () => setTimeout(loadLivePartners, 1200));
+
     </script>
 </body>
 

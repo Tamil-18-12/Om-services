@@ -51,8 +51,9 @@ const sendPartnerEmail = async (toEmail, partnerDetails) => {
                     </div>
 
                     <div class="contact-box">
-                        <p style="margin: 0; color: #555;">Any doubts? Call us directly at:</p>
-                        <a href="tel:9042195722" class="contact-number">9042195722</a>
+                        <p style="margin: 0 0 6px; color: #555; font-weight: 600;">Any doubts? Contact us:</p>
+                        <a href="mailto:omservice.live@gmail.com" class="contact-number" style="font-size:16px;">✉️ omservice.live@gmail.com</a>
+                        <a href="tel:8870043071" class="contact-number" style="font-size:22px; margin-top:5px;">📱 8870043071</a>
                     </div>
                 </div>
                 <div class="footer">

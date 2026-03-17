@@ -1,4 +1,11 @@
 node_modules
 .env
+.env.local
 .clerk.env
 /uploads
+*.temp.js
+c:\tmp\check_mongo.js
+c:\tmp\fix_admin_script.js
+package-lock.json
+*.log
+.DS_Store

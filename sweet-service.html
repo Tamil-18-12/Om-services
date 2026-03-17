@@ -63,7 +63,7 @@
             </div>
         </div>
 
-        <div class="row g-5 justify-content-center mt-4">
+        <div class="row g-5 justify-content-center mt-4" id="pkg-cards-row">
 
             <div class="col-lg-10">
                 <div class="glass-panel p-0 d-flex flex-column flex-md-row overflow-hidden hover-lift"
@@ -267,23 +267,19 @@
                     if (service.images && service.images.length > 0) {
                         const container = document.querySelector('.slideshow-container');
                         const controls = container.querySelector('.slide-controls');
-
-                        // Remove old slides
                         container.querySelectorAll('.slide').forEach(el => el.remove());
-
-                        // Add new slides
                         service.images.forEach((imgUrl, index) => {
                             const slide = document.createElement('div');
                             slide.className = `slide ${index === 0 ? 'active' : ''}`;
                             slide.style.backgroundImage = `url('${imgUrl}')`;
                             container.insertBefore(slide, controls);
                         });
-
-                        // Re-init slideshow
+                        initSlideshow();
+                    } else {
                         initSlideshow();
                     }
 
-                    // 2. Show Discount Toast/Banner if exists
+                    // 2. Show Discount Banner
                     if (service.discount) {
                         const discountToast = document.createElement('div');
                         discountToast.className = 'glass-panel p-3 text-center mb-4 border-gold animation-pulse';
@@ -293,9 +289,40 @@
                             <h4 class="text-gold m-0 fw-bold"><i class="fas fa-tags me-2"></i> ${service.discount}</h4>
                             ${service.description ? `<p class="text-white-50 m-0 small mt-1">${service.description}</p>` : ''}
                         `;
-                        // Insert after hero title
                         const title = document.querySelector('.hero-title');
                         title.parentNode.insertBefore(discountToast, title.nextSibling);
+                    }
+
+                    // 3. Render DB Packages (if any)
+                    if (service.packages && service.packages.length > 0) {
+                        const cardsContainer = document.getElementById('pkg-cards-row');
+                        if (cardsContainer) {
+                            window._dbPackages = service.packages;
+                            cardsContainer.innerHTML = service.packages.map((pkg, i) => {
+                                const imgSrc = pkg.image || 'https://via.placeholder.com/400x250/1e0321/fcdc3b?text=Package';
+                                const price = pkg.price || '';
+                                return `
+                                <div class="col-lg-10">
+                                    <div class="glass-panel p-0 d-flex flex-column flex-md-row overflow-hidden hover-lift"
+                                        onclick="openBookingModal('${pkg.name}', '${price}')">
+                                        <div class="col-md-5" style="min-height:250px;">
+                                            <img src="${imgSrc}" alt="${pkg.name}" class="w-100 h-100" style="object-fit:cover;"
+                                                onerror="this.src='https://via.placeholder.com/400x250/1e0321/fcdc3b?text=${encodeURIComponent(pkg.name || 'Package')}'">
+                                        </div>
+                                        <div class="col-md-7 p-4 p-md-5 d-flex flex-column justify-content-center">
+                                            ${pkg.badge ? `<span class="badge bg-gold text-dark mb-2 align-self-start">${pkg.badge}</span>` : ''}
+                                            <h2 class="text-gold fw-bold mb-3">${pkg.name || 'Item ' + (i + 1)}</h2>
+                                            <p class="text-white-50 mb-3">${pkg.description || ''}</p>
+                                            ${price ? `<h4 class="text-white mb-4">${price}</h4>` : ''}
+                                            <button class="btn-secondary-glow align-self-start"
+                                                onclick="event.stopPropagation(); openBookingModal('${pkg.name}', '${price}')">
+                                                Order Now
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>`;
+                            }).join('');
+                        }
                     }
                 } else {
                     initSlideshow();
@@ -398,8 +425,8 @@
 
                 if (result.success) {
                     bookingModal.hide();
-                    new bootstrap.Modal(document.getElementById('successModal')).show();
                     e.target.reset();
+                    setTimeout(() => successModal.show(), 400);
                 } else {
                     alert('Order failed: ' + result.error);
                 }
@@ -435,6 +462,56 @@
                 }
             }
         });
+
+        // --- Live Verified Partners (Auto-Loaded from MongoDB) ---
+        async function loadLivePartners() {
+            try {
+                const category = 'Sweet Stall';
+                const res = await fetch('/api/partners/approved?category=' + category);
+                const partners = await res.json();
+
+                if (partners && partners.length > 0) {
+                    const row = document.getElementById('pkg-cards-row');
+                    if (!row) return;
+
+                    const pHTML = partners.map(p => {
+                        const img = (p.images && p.images.length > 0)
+                            ? p.images[0] : 'https://via.placeholder.com/400x250/1e0321/fcdc3b?text=' + encodeURIComponent(p.name);
+
+                        const details = [
+                            p.sweetType ? '<p class="text-white-50 mb-1"><i class="fas fa-ice-cream me-2 text-gold"></i>' + p.sweetType + '</p>' : '',
+                            p.menuItems ? '<p class="text-white-50 mb-1"><i class="fas fa-utensils me-2 text-gold"></i>' + p.menuItems + '</p>' : '',
+                            p.address ? '<p class="text-white-50 mb-2"><i class="fas fa-map-marker-alt me-2 text-gold"></i>' + p.address + '</p>' : ''
+                        ].filter(Boolean).join('');
+
+                        return `
+                        <!-- Live Partner Injection -->
+                        <div class="col-lg-10 mt-5 pt-3 border-top border-white border-opacity-10 live-partner-anim">
+                            <div class="glass-panel p-0 d-flex flex-column flex-md-row overflow-hidden hover-lift"
+                                onclick="event.stopPropagation(); window.location.href='tel:${p.mobile}'">
+                                <div class="col-md-5" style="min-height:250px;">
+                                    <img src="${img}" alt="${p.name}" class="w-100 h-100" style="object-fit:cover;">
+                                </div>
+                                <div class="col-md-7 p-4 p-md-5 d-flex flex-column justify-content-center">
+                                    <span class="badge bg-gold text-dark mb-2 align-self-start"><i class="fas fa-check-circle me-1"></i> Verified Partner</span>
+                                    <h2 class="text-gold fw-bold mb-3">${p.name}</h2>
+                                    ${details}
+                                    <p class="text-success fw-bold mt-2" style="font-size:1.1rem;"><i class="fas fa-phone-alt me-1"></i> ${p.mobile}</p>
+                                    <button class="btn-secondary-glow align-self-start mt-2">
+                                        <i class="fas fa-phone me-1"></i> Call Contact
+                                    </button>
+                                </div>
+                            </div>
+                        </div>`;
+                    }).join('');
+
+                    row.insertAdjacentHTML('beforeend', pHTML);
+                }
+            } catch (e) { console.error('Error fetching live partners', e); }
+        }
+
+        window.addEventListener('load', () => setTimeout(loadLivePartners, 1200));
+
     </script>
 </body>
 
