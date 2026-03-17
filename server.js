@@ -38,9 +38,9 @@ app.use((req, res, next) => {
         "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdn.jsdelivr.net https://*.clerk.accounts.dev https://clerk.com https://challenges.cloudflare.com blob:; " +
         "worker-src 'self' blob:; " +
         "style-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://fonts.googleapis.com https://cdnjs.cloudflare.com; " +
-        "font-src 'self' https://fonts.gstatic.com https://cdnjs.cloudflare.com data:; " +
+        "font-src 'self' https://fonts.gstatic.com https://cdnjs.cloudflare.com https://cdn.jsdelivr.net data:; " +
         "img-src 'self' data: https://img.clerk.com https://images.clerk.dev https://i.imgur.com https://images.clerkstage.dev; " +
-        "connect-src 'self' https://*.clerk.accounts.dev https://clerk-telemetry.com https://*.clerk.com https://clerk.com;"
+        "connect-src 'self' https://*.clerk.accounts.dev https://clerk-telemetry.com https://*.clerk.com https://clerk.com https://cdn.jsdelivr.net;"
     );
     res.setHeader('Access-Control-Allow-Methods', 'GET,POST,PUT,DELETE,OPTIONS');
     next();
