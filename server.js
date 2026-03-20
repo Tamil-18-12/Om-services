@@ -1219,6 +1219,32 @@ app.delete("/api/page-content/:pageId/image", async (req, res) => {
 });
 
 // ===== PAGE ROUTES =====
+// Serve root assets like Images, logo, etc.
+app.get("/:file.:ext(png|jpg|jpeg|gif|ico|svg)", (req, res, next) => {
+  const filePath = path.join(__dirname, req.params.file + "." + req.params.ext);
+  if (require("fs").existsSync(filePath)) {
+    res.sendFile(filePath);
+  } else {
+    next();
+  }
+});
+
+// Serve all .html files from the root directory
+app.get("/:page.html", (req, res) => {
+  const filePath = path.join(__dirname, req.params.page + ".html");
+  if (require("fs").existsSync(filePath)) {
+    res.sendFile(filePath);
+  } else {
+    res.status(404).send("Page not found");
+  }
+});
+
+// Also serve plain names as .html (e.g. /about -> about.html)
+const commonPages = ["signin", "about", "contact", "user-dashboard", "reviews", "go", "join", "offers", "review"];
+commonPages.forEach(p => {
+  app.get(`/${p}`, (req, res) => res.sendFile(path.join(__dirname, `${p}.html`)));
+});
+
 app.get("/", (req, res) => {
   res.sendFile(path.join(__dirname, "index.html"));
 });
@@ -1226,6 +1252,8 @@ app.get("/", (req, res) => {
 app.get("/admin", (req, res) => {
   res.sendFile(path.join(__dirname, "admin.html"));
 });
+
+
 
 // ===== START SERVER =====
 if (process.env.VERCEL) {
