@@ -859,10 +859,8 @@ select.form-control-premium option {
 .btn-secondary-glow:hover { background: white; color: #000; transform: translateY(-2px); border-color: white; }
 .btn-gold-glow { background: transparent; color: #fcdc3b; border: 2px solid #fcdc3b; padding: 12px 30px; border-radius: 50px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; transition: all 0.3s ease; cursor: pointer; text-decoration: none; display: inline-block; font-size: 1rem; }
 .btn-gold-glow:hover { background: #fcdc3b; color: #000; transform: translateY(-2px); box-shadow: 0 5px 20px rgba(252, 220, 59, 0.4); }
-.glass-panel { background: rgba(20, 5, 25, 0.55); backdrop-filter: blur(18px); -webkit-backdrop-filter: blur(18px); border: 1px solid rgba(252, 220, 59, 0.15); box-shadow: 0 15px 35px rgba(0, 0, 0, 0.4), inset 0 0 20px rgba(252, 220, 59, 0.05); border-radius: 24px; padding: 2.5rem; margin: 1.5rem 0; transition: all 0.4s cubic-bezier(0.165, 0.84, 0.44, 1); position: relative; overflow: hidden; z-index: 1; }
-.glass-panel::before { content: ""; position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: linear-gradient(135deg, rgba(255,255,255,0.05) 0%, rgba(255,255,255,0) 100%); z-index: -1; pointer-events: none; }
-.glass-panel:hover { transform: translateY(-8px); box-shadow: 0 22px 45px rgba(0, 0, 0, 0.5), 0 0 25px rgba(252, 220, 59, 0.2), inset 0 0 25px rgba(252, 220, 59, 0.08); border-color: rgba(252, 220, 59, 0.4); }
-.service-card { background: rgba(20, 5, 25, 0.7); backdrop-filter: blur(10px); border: 1px solid rgba(252, 220, 59, 0.2); border-radius: 20px; overflow: hidden; transition: all 0.4s ease; height: 100%; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
+.glass-panel { background: rgba(255, 255, 255, 0.05); backdrop-filter: blur(10px); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 20px; padding: 3rem 2rem; margin: 2rem 0; }
+.service-card { background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 15px; overflow: hidden; transition: all 0.3s ease; height: 100%; }
 .service-card:hover { transform: translateY(-10px); border-color: #fcdc3b; box-shadow: 0 20px 40px rgba(252, 220, 59, 0.2); }
 .hover-lift:hover { transform: translateY(-5px); }
 
@@ -1145,31 +1143,5 @@ select.form-control-premium option {
         margin: 0 0 15px 0;
         width: 100px;
         height: 100px;
-    }
-}
-
-/* --- Added Extra Responsive Fixes for 768px --- */
-@media (max-width: 768px) {
-    .glass-panel {
-        padding: 1.5rem !important;
-        margin: 1rem 0 !important;
-        border-radius: 16px !important;
-    }
-    h1.display-1 {
-        font-size: 3.5rem !important;
-    }
-    .main-section {
-        padding-top: 100px;
-    }
-    .main-section .btn {
-        width: 100%;
-        margin-bottom: 10px;
-        padding: 15px !important;
-    }
-    .main-section .d-flex.gap-4 {
-        gap: 0 !important;
-    }
-    .page-title {
-        font-size: 2.2rem !important;
     }
 }
