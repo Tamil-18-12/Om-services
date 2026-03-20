@@ -197,10 +197,14 @@ const Partner = require("./models/Partner");
 const multer = require("multer");
 const fs = require("fs");
 
-// Create uploads directory if it doesn't exist
+// Create uploads directory if it doesn't exist (handle read-only environments like Vercel)
 const uploadDir = path.join(__dirname, "uploads");
-if (!fs.existsSync(uploadDir)) {
-  fs.mkdirSync(uploadDir);
+try {
+  if (!fs.existsSync(uploadDir)) {
+    fs.mkdirSync(uploadDir, { recursive: true });
+  }
+} catch (err) {
+  console.warn("⚠️ Could not create uploads directory (expected on Vercel/Serverless)");
 }
 
 const storage = multer.diskStorage({
@@ -1223,16 +1227,21 @@ app.get("/admin", (req, res) => {
 });
 
 // ===== START SERVER =====
-app.listen(PORT, () => {
-  console.log("\n" + "=".repeat(50));
-  console.log("🚀 OM SERVICE - SERVER STARTED");
-  console.log("=".repeat(50));
-  console.log(`📍 Port: ${PORT}`);
-  console.log(`🔗 URL: http://localhost:${PORT}`);
-  console.log(`🔗 Admin: http://localhost:${PORT}/admin.html`);
-  console.log(`🔗 Test: http://localhost:${PORT}/test-bookings.html`);
-  console.log("=".repeat(50) + "\n");
-});
+if (process.env.VERCEL) {
+  // Vercel serverless environments require exporting the app instead of listening
+  module.exports = app;
+} else {
+  app.listen(PORT, () => {
+    console.log("\n" + "=".repeat(50));
+    console.log("🚀 OM SERVICE - SERVER STARTED");
+    console.log("=".repeat(50));
+    console.log(`📍 Port: ${PORT}`);
+    console.log(`🔗 URL: http://localhost:${PORT}`);
+    console.log(`🔗 Admin: http://localhost:${PORT}/admin.html`);
+    console.log(`🔗 Test: http://localhost:${PORT}/test-bookings.html`);
+    console.log("=".repeat(50) + "\n");
+  });
+}
 
 // Handle graceful shutdown
 process.on("SIGINT", async () => {
