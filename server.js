@@ -1,7 +1,6 @@
 require("dotenv").config();
 const express = require("express");
 const path = require("path");
-const mongoose = require("mongoose");
 const { OAuth2Client } = require("google-auth-library");
 const app = express();
 const cors = require("cors");
@@ -60,6 +59,7 @@ app.use((req, res, next) => {
   res.setHeader("Access-Control-Allow-Methods", "GET,POST,PUT,DELETE,OPTIONS");
   next();
 });
+
 // Request Logger - MUST BE FIRST
 app.use((req, res, next) => {
   const timestamp = new Date().toLocaleTimeString();
@@ -67,159 +67,63 @@ app.use((req, res, next) => {
   next();
 });
 
-// Priority 1: Serve from /public folder (CSS, JS, assets)
+// Serve from /public folder (CSS, JS, assets)
 app.use(express.static(path.join(__dirname, "public")));
 
+// ===== DATABASE CONNECTION =====
+console.log("🔌 Connecting to MySQL database...");
+const sequelize = require("./config/database");
 
-// ===== MONGODB CONNECTION =====
-console.log("🔌 Connecting to MongoDB...");
-console.log(
-  "📍 URI:",
-  process.env.MONGODB_URI ? "Found in .env" : "❌ MISSING IN .env",
-);
+// Import Models
+const User = require("./models/User");
+const Otp = require("./models/Otp");
+const Booking = require("./models/Booking");
+const Review = require("./models/Review");
+const Partner = require("./models/Partner");
+const Service = require("./models/Service");
+const PageContent = require("./models/PageContent");
 
-// Set global mongoose buffer timeout to 30s (prevents buffering timeout errors)
-mongoose.set("bufferTimeoutMS", 30000);
+const { Op } = require("sequelize");
 
-const mongoConnectOptions = {
-  serverSelectionTimeoutMS: 30000, // Wait up to 30s to find a server
-  socketTimeoutMS: 60000, // 60s for socket operations
-  connectTimeoutMS: 30000, // 30s to establish initial connection
-  heartbeatFrequencyMS: 10000, // Check connection every 10s
-  maxPoolSize: 10, // Max 10 concurrent connections
-  retryWrites: true,
-  retryReads: true,
-};
-
-let isReconnecting = false; // Prevent duplicate reconnection loops
-
-async function connectMongoDB() {
-  if (isReconnecting) return; // Skip if already reconnecting
-  isReconnecting = true;
-
+async function connectDatabase() {
   try {
-    await mongoose.connect(process.env.MONGODB_URI, mongoConnectOptions);
-    isReconnecting = false;
-    console.log("✅ MongoDB Connected Successfully!");
+    // Ensure database exists on the MySQL server
+    const mysql = require("mysql2/promise");
+    const connection = await mysql.createConnection({
+      host: process.env.DB_HOST || "localhost",
+      port: process.env.DB_PORT || 3306,
+      user: process.env.DB_USER || "root",
+      password: process.env.DB_PASSWORD || "",
+    });
+    await connection.query(`CREATE DATABASE IF NOT EXISTS \`${process.env.DB_NAME || "om_services"}\`;`);
+    await connection.end();
 
-    // Get database name (Mongoose 9.x compatible)
-    const dbName = mongoose.connection.db?.databaseName 
-      || mongoose.connection.name 
-      || process.env.MONGODB_URI?.split('/').pop()?.split('?')[0] 
-      || 'unknown';
-    console.log("📊 Database:", dbName);
-
-    try {
-      // Wait for the connection to be fully established and the DB object to be available
-      if (mongoose.connection.db) {
-        const collections = await mongoose.connection.db
-          .listCollections({ name: "users" })
-          .toArray();
-        if (collections.length > 0) {
-          const usersCollection = mongoose.connection.db.collection("users");
-          const indexes = await usersCollection.indexes();
-          
-          if (indexes.some((idx) => idx.name === "username_1")) {
-            await usersCollection.dropIndex("username_1");
-            console.log("🗑️ Dropped legacy unique username index");
-          }
-          if (indexes.some((idx) => idx.name === "clerkId_1")) {
-            await usersCollection.dropIndex("clerkId_1");
-            console.log("🗑️ Dropped legacy unique clerkId index");
-          }
-        }
-      } else {
-        console.log(
-          "⚠️ MongoDB connection db object not ready for index check",
-        );
-      }
-    } catch (e) {
-      console.log("⚠️ Index cleanup info:", e.message);
-    }
+    await sequelize.authenticate();
+    console.log("✅ MySQL Connected Successfully!");
+    
+    // Sync models (creates tables automatically if they don't exist)
+    await sequelize.sync({ alter: true });
+    console.log("📊 Database models synchronized successfully!");
   } catch (err) {
-    isReconnecting = false;
-    console.error("❌ MongoDB Connection FAILED:", err.message);
-    console.error("💡 Retrying in 10 seconds...");
-    setTimeout(connectMongoDB, 10000); // Auto-retry after 10s
+    console.error("❌ MySQL connection/sync FAILED:", err.message);
+    console.log("💡 Retrying database connection in 10 seconds...");
+    setTimeout(connectDatabase, 10000);
   }
 }
-
-connectMongoDB();
-
-// Monitor MongoDB connection status
-mongoose.connection.on("connected", () => {
-  isReconnecting = false;
-  console.log("🟢 Mongoose connected to MongoDB");
-});
-
-mongoose.connection.on("error", (err) => {
-  // Log only the error message, not the full topology object
-  console.error("🔴 Mongoose connection error:", err.message || err);
-});
-
-mongoose.connection.on("disconnected", () => {
-  console.log("🟡 Mongoose disconnected");
-  console.log("🟡 Mongoose readyState:", mongoose.connection.readyState);
-  // Only attempt reconnect if not already doing so
-  if (!isReconnecting) {
-    console.log("💡 Attempting reconnect in 5s...");
-    setTimeout(connectMongoDB, 5000);
-  }
-});
-
-// ===== SCHEMAS =====
-const userSchema = new mongoose.Schema(
-  {
-    name: String,
-    email: { type: String, unique: true, sparse: true },
-    phone: String,
-    address: String,
-    password: { type: String }, // Hashed password
-    location: String,
-    age: Number,
-    profileImage: String,
-    isProfileComplete: { type: Boolean, default: false },
-    updatedAt: { type: Date, default: Date.now },
-  },
-  { collection: "users" },
-);
-
-const otpSchema = new mongoose.Schema({
-  email: { type: String, required: true },
-  otp: { type: String, required: true },
-  userData: { type: Object }, 
-  createdAt: { type: Date, default: Date.now, expires: 300 } 
-});
-const Otp = mongoose.model("Otp", otpSchema);
-
-const reviewSchema = new mongoose.Schema({
-  email: { type: String, lowercase: true, trim: true },
-  name: String,
-  rating: Number,
-  comment: String,
-  serviceType: String,
-  image: String,
-  likes: { type: Number, default: 0 },
-  createdAt: { type: Date, default: Date.now },
-});
-
-const User = mongoose.model("User", userSchema);
-const Booking = require("./models/Booking");
-const Review = mongoose.model("Review", reviewSchema);
-const Partner = require("./models/Partner");
+connectDatabase();
 
 // ===== MULTER CONFIGURATION =====
 const multer = require("multer");
 const fs = require("fs");
 
-// Create uploads directory if it doesn't exist (handle read-only environments like Vercel)
+// Create uploads directory if it doesn't exist
 const uploadDir = path.join(__dirname, "uploads");
 try {
   if (!fs.existsSync(uploadDir)) {
     fs.mkdirSync(uploadDir, { recursive: true });
   }
 } catch (err) {
-  console.warn("⚠️ Could not create uploads directory (expected on Vercel/Serverless)");
+  console.warn("⚠️ Could not create uploads directory (expected on serverless environments)");
 }
 
 const storage = multer.diskStorage({
@@ -240,7 +144,7 @@ const upload = multer({
   limits: { fileSize: 5 * 1024 * 1024 }, // 5MB limit
 });
 
-// Memory storage for profile images to avoid disk issues on cloud platforms (Vercel/Render)
+// Memory storage for profile images
 const memoryStorage = multer.memoryStorage();
 const uploadMemory = multer({
   storage: memoryStorage,
@@ -255,7 +159,6 @@ app.post("/api/admin/login", (req, res) => {
   const { username, password } = req.body;
   console.log(`🔐 Admin login attempt: ${username}`);
 
-  // Check credentials from .env only (no hardcoded passwords)
   if (
     username === process.env.ADMIN_USERNAME &&
     password === process.env.ADMIN_PASSWORD
@@ -290,13 +193,18 @@ app.post("/api/admin/upload", upload.single("image"), (req, res) => {
 app.get("/api/admin/analytics", async (req, res) => {
   try {
     console.log("📊 Fetching analytics...");
-    const totalBookings = await Booking.countDocuments();
-    const usersCount = await User.countDocuments();
-    const reviewsCount = await Review.countDocuments();
+    const totalBookings = await Booking.count();
+    const usersCount = await User.count();
+    const reviewsCount = await Review.count();
 
-    const stats = await Booking.aggregate([
-      { $group: { _id: "$serviceType", count: { $sum: 1 } } },
-    ]);
+    const stats = await Booking.findAll({
+      attributes: [
+        ["serviceType", "_id"],
+        [sequelize.fn("COUNT", sequelize.col("id")), "count"],
+      ],
+      group: ["serviceType"],
+      raw: true,
+    });
 
     console.log(
       `✅ Analytics: ${totalBookings} bookings, ${usersCount} users, ${reviewsCount} reviews`,
@@ -323,7 +231,7 @@ app.get("/api/admin/export/pdf/:id", pdfGenerator.generateBookingPDF);
 app.get("/api/bookings", async (req, res) => {
   try {
     console.log("📋 Fetching all bookings...");
-    const bookings = await Booking.find().sort({ createdAt: -1 });
+    const bookings = await Booking.findAll({ order: [["createdAt", "DESC"]] });
     console.log(`✅ Found ${bookings.length} bookings`);
     res.json(bookings);
   } catch (err) {
@@ -335,8 +243,9 @@ app.get("/api/bookings", async (req, res) => {
 app.get("/api/user-bookings/:email", async (req, res) => {
   try {
     console.log(`📋 Fetching bookings for: ${req.params.email}`);
-    const bookings = await Booking.find({ email: req.params.email }).sort({
-      createdAt: -1,
+    const bookings = await Booking.findAll({
+      where: { email: req.params.email },
+      order: [["createdAt", "DESC"]],
     });
     console.log(`✅ Found ${bookings.length} bookings for user`);
     res.json(bookings);
@@ -355,7 +264,6 @@ app.post("/api/bookings", async (req, res) => {
     console.log("📝 Creating new booking...");
     console.log("📦 Booking data:", req.body);
 
-    // Validate required fields
     if (!req.body.name || !req.body.serviceType) {
       console.log("❌ Missing required fields");
       return res.status(400).json({
@@ -364,15 +272,23 @@ app.post("/api/bookings", async (req, res) => {
       });
     }
 
-    const newBooking = new Booking(req.body);
-    const savedBooking = await newBooking.save();
+    const savedBooking = await Booking.create({
+      ...req.body,
+      status: "Pending",
+      statusHistory: [
+        {
+          status: "Pending",
+          changedAt: new Date(),
+          note: "Booking created",
+        },
+      ],
+    });
 
     console.log("✅ Booking saved successfully!");
-    console.log("🆔 Booking ID:", savedBooking._id);
+    console.log("🆔 Booking ID:", savedBooking.id);
 
-    // Send confirmation email (non-blocking)
+    // Send confirmation email
     console.log("📧 Attempting to send confirmation email...");
-    // Pass savedBooking as bookingDetails
     sendBookingEmail(savedBooking.email, savedBooking)
       .then(() => console.log("✅ Email workflow complete"))
       .catch((err) => console.error("⚠️ Email handling error:", err));
@@ -384,7 +300,6 @@ app.post("/api/bookings", async (req, res) => {
     });
   } catch (err) {
     console.error("❌ CREATE BOOKING ERROR:", err);
-    console.error("Stack:", err.stack);
     res.status(500).json({
       success: false,
       error: "Failed to create booking",
@@ -396,19 +311,17 @@ app.post("/api/bookings", async (req, res) => {
 app.put("/api/bookings/:id", async (req, res) => {
   try {
     console.log(`✏️ Updating booking: ${req.params.id}`);
-    const updatedBooking = await Booking.findByIdAndUpdate(
-      req.params.id,
-      req.body,
-      { new: true },
-    );
+    const booking = await Booking.findByPk(req.params.id);
 
-    if (!updatedBooking) {
+    if (!booking) {
       console.log("❌ Booking not found");
       return res.status(404).json({ error: "Booking not found" });
     }
 
+    await booking.update(req.body);
+
     console.log("✅ Booking updated successfully");
-    res.json({ success: true, booking: updatedBooking });
+    res.json({ success: true, booking });
   } catch (err) {
     console.error("❌ Update error:", err);
     res.status(500).json({ error: "Update failed" });
@@ -418,12 +331,14 @@ app.put("/api/bookings/:id", async (req, res) => {
 app.delete("/api/bookings/:id", async (req, res) => {
   try {
     console.log(`🗑️ Deleting booking: ${req.params.id}`);
-    const deleted = await Booking.findByIdAndDelete(req.params.id);
+    const booking = await Booking.findByPk(req.params.id);
 
-    if (!deleted) {
+    if (!booking) {
       console.log("❌ Booking not found");
       return res.status(404).json({ error: "Booking not found" });
     }
+
+    await booking.destroy();
 
     console.log("✅ Booking deleted successfully");
     res.json({ success: true });
@@ -436,7 +351,7 @@ app.delete("/api/bookings/:id", async (req, res) => {
 // ===== REVIEW ROUTES =====
 app.get("/api/reviews", async (req, res) => {
   try {
-    const reviews = await Review.find().sort({ createdAt: -1 });
+    const reviews = await Review.findAll({ order: [["createdAt", "DESC"]] });
     res.json(reviews);
   } catch (err) {
     console.error("❌ Reviews fetch error:", err);
@@ -444,10 +359,12 @@ app.get("/api/reviews", async (req, res) => {
   }
 });
 
-// DEBUG: See all reviews in DB (only available in development)
-if (process.env.NODE_ENV !== 'production') {
+if (process.env.NODE_ENV !== "production") {
   app.get("/api/debug-reviews", async (req, res) => {
-    const reviews = await Review.find({}).select("email name rating serviceType createdAt").lean();
+    const reviews = await Review.findAll({
+      attributes: ["email", "name", "rating", "serviceType", "createdAt"],
+      raw: true,
+    });
     res.json({ total: reviews.length, reviews });
   });
 }
@@ -455,11 +372,12 @@ if (process.env.NODE_ENV !== 'production') {
 app.get("/api/user-reviews/:email", async (req, res) => {
   try {
     console.log(`📋 Fetching reviews for: ${req.params.email}`);
-    // Use regex for case-insensitive search to catch any existing non-lowercased entries
-    const reviews = await Review.find({ 
-      email: { $regex: new RegExp("^" + req.params.email + "$", "i") } 
-    }).sort({
-      createdAt: -1,
+    // MySQL checks are case-insensitive by default with LIKE comparisons
+    const reviews = await Review.findAll({
+      where: {
+        email: { [Op.like]: req.params.email },
+      },
+      order: [["createdAt", "DESC"]],
     });
     res.json(reviews);
   } catch (err) {
@@ -472,8 +390,7 @@ app.post("/api/reviews", async (req, res) => {
   try {
     const data = { ...req.body };
     if (data.email) data.email = data.email.toLowerCase();
-    const review = new Review(data);
-    await review.save();
+    const review = await Review.create(data);
     console.log("✅ Review saved");
     res.json({ success: true, review });
   } catch (err) {
@@ -486,21 +403,19 @@ app.put("/api/reviews/:id", async (req, res) => {
   try {
     const data = { ...req.body };
     if (data.email) data.email = data.email.toLowerCase();
-    
-    console.log(`✏️ Updating review: ${req.params.id}`);
-    const updatedReview = await Review.findByIdAndUpdate(
-      req.params.id,
-      data,
-      { new: true },
-    );
 
-    if (!updatedReview) {
+    console.log(`✏️ Updating review: ${req.params.id}`);
+    const review = await Review.findByPk(req.params.id);
+
+    if (!review) {
       console.log("❌ Review not found");
       return res.status(404).json({ error: "Review not found" });
     }
 
+    await review.update(data);
+
     console.log("✅ Review updated successfully");
-    res.json({ success: true, review: updatedReview });
+    res.json({ success: true, review });
   } catch (err) {
     console.error("❌ Review update error:", err);
     res.status(500).json({ error: "Failed to update review" });
@@ -510,8 +425,9 @@ app.put("/api/reviews/:id", async (req, res) => {
 app.delete("/api/reviews/:id", async (req, res) => {
   try {
     console.log(`🗑️ Deleting review: ${req.params.id}`);
-    const deleted = await Review.findByIdAndDelete(req.params.id);
-    if (!deleted) return res.status(404).json({ error: "Review not found" });
+    const review = await Review.findByPk(req.params.id);
+    if (!review) return res.status(404).json({ error: "Review not found" });
+    await review.destroy();
     res.json({ success: true, message: "Review deleted" });
   } catch (err) {
     console.error("❌ Review delete error:", err);
@@ -525,40 +441,35 @@ app.delete("/api/reviews/:id", async (req, res) => {
 app.post("/api/auth/send-otp", async (req, res) => {
   try {
     const { email, phone, name, address, password } = req.body;
-    
+
     if (!email || !password || !name) {
       return res.status(400).json({ error: "Email, password, and name are required." });
     }
 
-    // Check if user already exists
-    const existingUser = await User.findOne({ email: email.toLowerCase() });
+    const existingUser = await User.findOne({ where: { email: email.toLowerCase() } });
     if (existingUser) {
       return res.status(400).json({ error: "User with this email already exists." });
     }
 
-    // Generate 6 digit OTP
     const otp = Math.floor(100000 + Math.random() * 900000).toString();
 
-    // Hash password
     const salt = await bcrypt.genSalt(10);
     const hashedPassword = await bcrypt.hash(password, salt);
 
-    // Save/Update to Otp Collection
-    await Otp.findOneAndUpdate(
-      { email: email.toLowerCase() },
-      { 
-        otp, 
-        userData: { email: email.toLowerCase(), phone, name, address, password: hashedPassword },
-        createdAt: Date.now()
-      },
-      { upsert: true, new: true }
-    );
+    // Save/Update to Otp table
+    const existingOtp = await Otp.findOne({ where: { email: email.toLowerCase() } });
+    const userData = { email: email.toLowerCase(), phone, name, address, password: hashedPassword };
 
-    // Send the email
+    if (existingOtp) {
+      await existingOtp.update({ otp, userData, updatedAt: new Date() });
+    } else {
+      await Otp.create({ email: email.toLowerCase(), otp, userData });
+    }
+
     await sendOtpEmail(email, otp);
 
     res.json({ success: true, message: "OTP sent to email." });
-  } catch(err) {
+  } catch (err) {
     console.error("❌ Send OTP Error:", err);
     res.status(500).json({ error: "Failed to send OTP.", details: err.message || err.toString() });
   }
@@ -568,31 +479,34 @@ app.post("/api/auth/send-otp", async (req, res) => {
 app.post("/api/auth/verify-otp", async (req, res) => {
   try {
     const { email, otp } = req.body;
-    
-    const otpRecord = await Otp.findOne({ email: email.toLowerCase() });
+
+    const otpRecord = await Otp.findOne({ where: { email: email.toLowerCase() } });
     if (!otpRecord) {
       return res.status(400).json({ error: "OTP expired or not found. Please resend." });
+    }
+
+    // Manual check: Check if OTP is older than 5 minutes
+    const ageInMilliseconds = new Date() - new Date(otpRecord.updatedAt || otpRecord.createdAt);
+    if (ageInMilliseconds > 5 * 60 * 1000) {
+      await otpRecord.destroy();
+      return res.status(400).json({ error: "OTP expired. Please request a new one." });
     }
 
     if (otpRecord.otp !== otp) {
       return res.status(400).json({ error: "Invalid OTP." });
     }
 
-    // Valid OTP - Create user
     const userData = otpRecord.userData;
-    const newUser = new User({
+    const newUser = await User.create({
       name: userData.name,
       email: userData.email,
       phone: userData.phone,
       address: userData.address,
-      password: userData.password, // already hashed
-      isProfileComplete: true
+      password: userData.password,
+      isProfileComplete: true,
     });
 
-    await newUser.save();
-    
-    // Clean up OTP
-    await Otp.deleteOne({ email: email.toLowerCase() });
+    await otpRecord.destroy();
 
     console.log("✅ User registered successfully:", newUser.email);
     res.json({ success: true, message: "Registration successful", user: newUser });
@@ -611,14 +525,16 @@ app.post("/api/auth/login", async (req, res) => {
       return res.status(400).json({ error: "Email and password are required." });
     }
 
-    const user = await User.findOne({ email: email.toLowerCase() });
+    const user = await User.findOne({ where: { email: email.toLowerCase() } });
     if (!user) {
       return res.status(400).json({ error: "Invalid email or password." });
     }
-    
-    // Check password
+
     if (!user.password) {
-      return res.status(400).json({ error: "Please use forgot password or contact admin to reset your password. (Account was linked to external provider)" });
+      return res.status(400).json({
+        error:
+          "Please use forgot password or contact admin to reset your password. (Account was linked to external provider)",
+      });
     }
 
     const isMatch = await bcrypt.compare(password, user.password);
@@ -627,11 +543,10 @@ app.post("/api/auth/login", async (req, res) => {
     }
 
     console.log("✅ User logged in:", user.email);
-    // Exclude password hash from response
-    const safeUser = user.toObject();
+    const safeUser = user.get({ plain: true });
     delete safeUser.password;
     res.json({ success: true, message: "Login successful", user: safeUser });
-  } catch(err) {
+  } catch (err) {
     console.error("❌ Login Error:", err);
     res.status(500).json({ error: "Failed to login." });
   }
@@ -643,28 +558,29 @@ app.post("/api/auth/forgot-password", async (req, res) => {
     const { email } = req.body;
     if (!email) return res.status(400).json({ error: "Email is required." });
 
-    const user = await User.findOne({ email: email.toLowerCase() });
+    const user = await User.findOne({ where: { email: email.toLowerCase() } });
     if (!user) {
       return res.status(404).json({ error: "User not found with this email." });
     }
 
-    // Generate 6 digit OTP
     const otp = Math.floor(100000 + Math.random() * 900000).toString();
 
-    // Save to OTP collection
-    await Otp.findOneAndUpdate(
-      { email: email.toLowerCase() },
-      { otp, createdAt: Date.now() },
-      { upsert: true, new: true }
-    );
+    const existingOtp = await Otp.findOne({ where: { email: email.toLowerCase() } });
+    if (existingOtp) {
+      await existingOtp.update({ otp, updatedAt: new Date() });
+    } else {
+      await Otp.create({ email: email.toLowerCase(), otp });
+    }
 
-    // Send the email
     await sendOtpEmail(email, otp);
 
     res.json({ success: true, message: "Reset OTP sent to your email." });
   } catch (err) {
     console.error("❌ Forgot Password Error:", err);
-    res.status(500).json({ error: "Failed to send reset OTP." });
+    res.status(500).json({
+      error: "Failed to send reset OTP.",
+      details: err.message || err.toString(),
+    });
   }
 });
 
@@ -676,26 +592,26 @@ app.post("/api/auth/reset-password", async (req, res) => {
       return res.status(400).json({ error: "Email, OTP, and new password are required." });
     }
 
-    const otpRecord = await Otp.findOne({ email: email.toLowerCase() });
+    const otpRecord = await Otp.findOne({ where: { email: email.toLowerCase() } });
     if (!otpRecord || otpRecord.otp !== otp) {
       return res.status(400).json({ error: "Invalid or expired OTP." });
     }
 
-    // Hash new password
+    // Manual check: Check if OTP is older than 5 minutes
+    const ageInMilliseconds = new Date() - new Date(otpRecord.updatedAt || otpRecord.createdAt);
+    if (ageInMilliseconds > 5 * 60 * 1000) {
+      await otpRecord.destroy();
+      return res.status(400).json({ error: "OTP expired. Please request a new one." });
+    }
+
     const salt = await bcrypt.genSalt(10);
     const hashedPassword = await bcrypt.hash(newPassword, salt);
 
-    // Update user password
-    const user = await User.findOneAndUpdate(
-      { email: email.toLowerCase() },
-      { password: hashedPassword },
-      { new: true }
-    );
-
+    const user = await User.findOne({ where: { email: email.toLowerCase() } });
     if (!user) return res.status(404).json({ error: "User not found." });
 
-    // Clean up OTP
-    await Otp.deleteOne({ email: email.toLowerCase() });
+    await user.update({ password: hashedPassword });
+    await otpRecord.destroy();
 
     console.log("✅ Password reset successfully for:", email);
     res.json({ success: true, message: "Password updated successfully. You can now sign in." });
@@ -706,23 +622,17 @@ app.post("/api/auth/reset-password", async (req, res) => {
 });
 
 // ===== USER ROUTES =====
-// Legacy route kept for backward compatibility - now unused
-// app.get("/api/user/:userId", ...) - use /api/user-by-email/:email instead
-
-// Helper to escape regex special characters
-function escapeRegex(str) {
-  return str.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-}
-
 app.get("/api/user-by-email/:email", async (req, res) => {
   try {
     const normalizedEmail = req.params.email.toLowerCase();
     const user = await User.findOne({
-      email: { $regex: new RegExp(`^${escapeRegex(normalizedEmail)}$`, "i") },
+      where: {
+        email: { [Op.like]: normalizedEmail },
+      },
     });
     console.log(`[EMAIL] ${normalizedEmail} - ${user ? "Found" : "Not Found"}`);
     if (user) {
-      const safeUser = user.toObject();
+      const safeUser = user.get({ plain: true });
       delete safeUser.password;
       res.json(safeUser);
     } else {
@@ -740,45 +650,38 @@ app.post(
   async (req, res) => {
     try {
       console.log("🔄 Profile Update Request");
-
-      // When using multer, text fields are in req.body
       const { email, ...bodyData } = req.body;
 
       if (!email) {
         console.log("❌ Missing Email");
-        return res
-          .status(400)
-          .json({ error: "Email is required" });
+        return res.status(400).json({ error: "Email is required" });
       }
 
       const normalizedEmail = email.toLowerCase();
-
-      // Prepare update object
       const updateData = { ...bodyData };
-      updateData.updatedAt = Date.now();
       updateData.isProfileComplete = true;
 
-      // Add file as Base64 if image uploaded (Stops using disk, stores in MongoDB)
       if (req.file) {
-          console.log("📸 Processing new profile image (Memory -> Base64)");
-          const base64Image = `data:${req.file.mimetype};base64,${req.file.buffer.toString('base64')}`;
-          updateData.profileImage = base64Image;
-          console.log("✅ Image converted to Base64 (Stored in MongoDB)");
+        console.log("📸 Processing new profile image (Memory -> Base64)");
+        const base64Image = `data:${req.file.mimetype};base64,${req.file.buffer.toString("base64")}`;
+        updateData.profileImage = base64Image;
+        console.log("✅ Image converted to Base64");
       }
 
       console.log(`[UPDATE] Email=${normalizedEmail}`);
 
-      const user = await User.findOneAndUpdate(
-        { email: { $regex: new RegExp(`^${escapeRegex(normalizedEmail)}$`, "i") } },
-        { $set: { email: normalizedEmail, ...updateData } },
-        { new: true, upsert: true, setDefaultsOnInsert: true },
-      );
+      const existingUser = await User.findOne({ where: { email: normalizedEmail } });
+      let user;
+      if (existingUser) {
+        user = await existingUser.update(updateData);
+      } else {
+        user = await User.create({ email: normalizedEmail, ...updateData });
+      }
 
-      // Remove password hash from response
-      const safeUser = user.toObject();
+      const safeUser = user.get({ plain: true });
       delete safeUser.password;
 
-      console.log("✅ Profile saved to MongoDB:", user._id);
+      console.log("✅ Profile saved to MySQL:", user.id);
       res.json({ success: true, user: safeUser });
     } catch (err) {
       console.error("❌ Profile update error:", err);
@@ -792,17 +695,14 @@ app.post("/api/join", uploadMemory.array("images", 5), async (req, res) => {
   try {
     console.log("🤝 New Partner Request:", req.body.category, req.body.name);
 
-    // Handle file uploads (Convert from Memory Buffer to Base64 for permanent MongoDB storage)
     const imagePaths = req.files
       ? req.files.map((file) => {
-          return `data:${file.mimetype};base64,${file.buffer.toString('base64')}`;
+          return `data:${file.mimetype};base64,${file.buffer.toString("base64")}`;
         })
       : [];
 
-    // Handle potentially duplicate fields (like 'details') which might come as an array
     let details = req.body.details;
     if (Array.isArray(details)) {
-      // Filter out empty strings and join distinct values
       details = details.filter((d) => d && d.trim().length > 0).join("\n");
     }
 
@@ -812,12 +712,9 @@ app.post("/api/join", uploadMemory.array("images", 5), async (req, res) => {
       images: imagePaths,
     };
 
-    const newPartner = new Partner(partnerData);
-    await newPartner.save();
+    const newPartner = await Partner.create(partnerData);
+    console.log("✅ Partner request saved to MySQL:", newPartner.id);
 
-    console.log("✅ Partner request saved to MongoDB:", newPartner._id);
-
-    // Send welcome email
     if (req.body.email) {
       console.log("📧 Sending welcome email to", req.body.email);
       sendPartnerEmail(req.body.email, {
@@ -833,14 +730,13 @@ app.post("/api/join", uploadMemory.array("images", 5), async (req, res) => {
   }
 });
 
-// Get all partner applications (admin)
 const sendApprovalEmail = require("./utils/sendApprovalEmail");
 const sendPartnerCodeEmail = require("./utils/sendPartnerCodeEmail");
 
 app.get("/api/partners", async (req, res) => {
   try {
     console.log("📋 Fetching all partner applications...");
-    const partners = await Partner.find().sort({ createdAt: -1 });
+    const partners = await Partner.findAll({ order: [["createdAt", "DESC"]] });
     console.log(`✅ Found ${partners.length} partner applications`);
     res.json(partners);
   } catch (err) {
@@ -849,15 +745,17 @@ app.get("/api/partners", async (req, res) => {
   }
 });
 
-// Get approved partners for public pages
 app.get("/api/partners/approved", async (req, res) => {
   try {
     const { category } = req.query;
-    let query = { status: "Approved" };
+    const whereQuery = { status: "Approved" };
     if (category) {
-      query.category = new RegExp("^" + category + "$", "i"); // Case-insensitive exact match
+      whereQuery.category = { [Op.like]: category };
     }
-    const partners = await Partner.find(query).sort({ updatedAt: -1 });
+    const partners = await Partner.findAll({
+      where: whereQuery,
+      order: [["updatedAt", "DESC"]],
+    });
     res.json(partners);
   } catch (err) {
     console.error("❌ Approved partners fetch error:", err);
@@ -865,11 +763,12 @@ app.get("/api/partners/approved", async (req, res) => {
   }
 });
 
-// Delete a partner application
 app.delete("/api/partners/:id", async (req, res) => {
   try {
-    const deleted = await Partner.findByIdAndDelete(req.params.id);
-    if (!deleted) return res.status(404).json({ error: "Not found" });
+    console.log(`🗑️ Deleting partner: ${req.params.id}`);
+    const partner = await Partner.findByPk(req.params.id);
+    if (!partner) return res.status(404).json({ error: "Not found" });
+    await partner.destroy();
     console.log("✅ Partner deleted:", req.params.id);
     res.json({ success: true });
   } catch (err) {
@@ -878,25 +777,23 @@ app.delete("/api/partners/:id", async (req, res) => {
   }
 });
 
-// Approve a partner
 app.put("/api/partners/:id/approve", async (req, res) => {
   try {
     const { adminNote } = req.body;
-    const partner = await Partner.findByIdAndUpdate(
-      req.params.id,
-      { status: "Approved", adminNote: adminNote || "", updatedAt: Date.now() },
-      { new: true, strict: false },
-    );
+    const partner = await Partner.findByPk(req.params.id);
     if (!partner) return res.status(404).json({ error: "Not found" });
 
-    // Send approval email
+    await partner.update({
+      status: "Approved",
+      adminNote: adminNote || "",
+    });
+
     if (partner.email) {
       sendApprovalEmail(partner.email, partner, true, adminNote || "").catch(
         (e) => console.error("Approval email failed:", e),
       );
     }
 
-    // Send the HTML code snippet to the Admin directly
     sendPartnerCodeEmail(partner).catch((e) =>
       console.error("Admin Code snippet email failed:", e),
     );
@@ -909,18 +806,17 @@ app.put("/api/partners/:id/approve", async (req, res) => {
   }
 });
 
-// Reject a partner
 app.put("/api/partners/:id/reject", async (req, res) => {
   try {
     const { adminNote } = req.body;
-    const partner = await Partner.findByIdAndUpdate(
-      req.params.id,
-      { status: "Rejected", adminNote: adminNote || "", updatedAt: Date.now() },
-      { new: true, strict: false },
-    );
+    const partner = await Partner.findByPk(req.params.id);
     if (!partner) return res.status(404).json({ error: "Not found" });
 
-    // Send rejection email
+    await partner.update({
+      status: "Rejected",
+      adminNote: adminNote || "",
+    });
+
     if (partner.email) {
       sendApprovalEmail(partner.email, partner, false, adminNote || "").catch(
         (e) => console.error("Rejection email failed:", e),
@@ -935,36 +831,14 @@ app.put("/api/partners/:id/reject", async (req, res) => {
   }
 });
 
-// ===== SERVICE SCHEMA & ROUTES =====
-const serviceSchema = new mongoose.Schema({
-  category: { type: String, required: true, unique: true },
-  images: [String], // Slideshow images
-  discount: String, // Banner discount text
-  description: String, // Banner tagline
-  packages: [
-    {
-      // Service packages (cards shown on page)
-      name: String,
-      badge: String, // e.g. "Professional", "Best Value"
-      image: String, // Package card image URL
-      description: String, // Short description shown on card
-      price: String, // e.g. "Starts at ₹10,000"
-      features: [String], // Bullet list in detail modal
-    },
-  ],
-  updatedAt: { type: Date, default: Date.now },
-});
-
-const Service = mongoose.model("Service", serviceSchema);
-
-// Get All Services or Specific Category
+// ===== SERVICE ROUTES =====
 app.get("/api/services", async (req, res) => {
   try {
     const { category } = req.query;
-    let query = {};
-    if (category) query.category = category;
+    const whereQuery = {};
+    if (category) whereQuery.category = category;
 
-    const services = await Service.find(query);
+    const services = await Service.findAll({ where: whereQuery });
     res.json(services);
   } catch (err) {
     console.error("❌ Service fetch error:", err);
@@ -972,49 +846,40 @@ app.get("/api/services", async (req, res) => {
   }
 });
 
-// Update Service (Create if not exists)
 app.post("/api/services", async (req, res) => {
   try {
     const { category, images, discount, description, packages } = req.body;
     console.log(`🛠️ Updating service: ${category}`);
 
-    const updatedService = await Service.findOneAndUpdate(
-      { category },
-      {
-        $set: {
-          images,
-          discount,
-          description,
-          packages,
-          updatedAt: Date.now(),
-        },
-      },
-      { new: true, upsert: true, setDefaultsOnInsert: true },
-    );
+    const existing = await Service.findOne({ where: { category } });
+    let service;
+    if (existing) {
+      service = await existing.update({ images, discount, description, packages });
+    } else {
+      service = await Service.create({ category, images, discount, description, packages });
+    }
 
     console.log("✅ Service updated successfully");
-    res.json({ success: true, service: updatedService });
+    res.json({ success: true, service });
   } catch (err) {
     console.error("❌ Service update error:", err);
     res.status(500).json({ error: "Failed to update service" });
   }
 });
 
-// Remove a specific image from a service gallery
 app.delete("/api/services/:category/image", async (req, res) => {
   try {
     const { category } = req.params;
     const { imageUrl } = req.body;
     console.log(`🗑️ Removing image from ${category}: ${imageUrl}`);
 
-    const service = await Service.findOne({ category });
+    const service = await Service.findOne({ where: { category } });
     if (!service) {
       return res.status(404).json({ error: "Service not found" });
     }
 
-    service.images = service.images.filter((img) => img !== imageUrl);
-    service.updatedAt = Date.now();
-    await service.save();
+    const newImages = service.images.filter((img) => img !== imageUrl);
+    await service.update({ images: newImages });
 
     console.log("✅ Image removed successfully");
     res.json({ success: true, service });
@@ -1024,7 +889,6 @@ app.delete("/api/services/:category/image", async (req, res) => {
   }
 });
 
-// Replace a specific image in a service gallery (upload new + update DB position)
 app.post(
   "/api/services/:category/image/update",
   upload.single("image"),
@@ -1042,20 +906,19 @@ app.post(
         `🔄 Replacing image in ${category}: ${oldImageUrl} → ${newImageUrl}`,
       );
 
-      const service = await Service.findOne({ category });
+      const service = await Service.findOne({ where: { category } });
       if (!service) {
         return res.status(404).json({ error: "Service not found" });
       }
 
-      const idx = service.images.indexOf(oldImageUrl);
+      const images = [...(service.images || [])];
+      const idx = images.indexOf(oldImageUrl);
       if (idx !== -1) {
-        service.images[idx] = newImageUrl;
+        images[idx] = newImageUrl;
       } else {
-        service.images.push(newImageUrl);
+        images.push(newImageUrl);
       }
-      service.updatedAt = Date.now();
-      service.markModified("images");
-      await service.save();
+      await service.update({ images });
 
       console.log("✅ Image replaced successfully");
       res.json({ success: true, newImageUrl, service });
@@ -1066,7 +929,6 @@ app.post(
   },
 );
 
-// Add a new image to a service gallery
 app.post(
   "/api/services/:category/image/add",
   upload.single("image"),
@@ -1081,14 +943,19 @@ app.post(
       const newImageUrl = "/uploads/" + req.file.filename;
       console.log(`➕ Adding image to ${category}: ${newImageUrl}`);
 
-      const service = await Service.findOneAndUpdate(
-        { category },
-        { $push: { images: newImageUrl }, $set: { updatedAt: Date.now() } },
-        { new: true, upsert: true },
-      );
-
+      const service = await Service.findOne({ where: { category } });
+      if (service) {
+        const images = [...(service.images || []), newImageUrl];
+        await service.update({ images });
+        res.json({ success: true, newImageUrl, service });
+      } else {
+        const newService = await Service.create({
+          category,
+          images: [newImageUrl]
+        });
+        res.json({ success: true, newImageUrl, service: newService });
+      }
       console.log("✅ Image added successfully");
-      res.json({ success: true, newImageUrl, service });
     } catch (err) {
       console.error("❌ Image add error:", err);
       res.status(500).json({ error: "Failed to add image" });
@@ -1096,42 +963,10 @@ app.post(
   },
 );
 
-// ===== PAGE CONTENT SCHEMA & ROUTES =====
-const pageContentSchema = new mongoose.Schema({
-  pageId: { type: String, required: true, unique: true }, // e.g. 'home', 'about', 'contact'
-  pageName: String,
-  heroImage: String,
-  heroTitle: String,
-  heroSubtitle: String,
-  sections: [
-    {
-      sectionId: String,
-      title: String,
-      subtitle: String,
-      text: String,
-      images: [String],
-      videos: [String],
-      items: [mongoose.Schema.Types.Mixed],
-    },
-  ],
-  contactInfo: {
-    phone1: String,
-    phone2: String,
-    email1: String,
-    email2: String,
-    address: String,
-    mapUrl: String,
-  },
-  dynamicMap: { type: mongoose.Schema.Types.Mixed, default: {} },
-  updatedAt: { type: Date, default: Date.now },
-});
-
-const PageContent = mongoose.model("PageContent", pageContentSchema);
-
-// Get all page contents
+// ===== PAGE CONTENT ROUTES =====
 app.get("/api/page-content", async (req, res) => {
   try {
-    const pages = await PageContent.find();
+    const pages = await PageContent.findAll();
     res.json(pages);
   } catch (err) {
     console.error("❌ Page content fetch error:", err);
@@ -1139,10 +974,9 @@ app.get("/api/page-content", async (req, res) => {
   }
 });
 
-// Get single page content by ID
 app.get("/api/page-content/:pageId", async (req, res) => {
   try {
-    const page = await PageContent.findOne({ pageId: req.params.pageId });
+    const page = await PageContent.findOne({ where: { pageId: req.params.pageId } });
     res.json(page || {});
   } catch (err) {
     console.error("❌ Page content fetch error:", err);
@@ -1150,18 +984,19 @@ app.get("/api/page-content/:pageId", async (req, res) => {
   }
 });
 
-// Update page content (upsert)
 app.post("/api/page-content/:pageId", async (req, res) => {
   try {
     const { pageId } = req.params;
-    const updateData = { ...req.body, updatedAt: Date.now() };
+    const updateData = { ...req.body };
     console.log(`📄 Updating page content: ${pageId}`);
 
-    const page = await PageContent.findOneAndUpdate(
-      { pageId },
-      { $set: updateData },
-      { new: true, upsert: true, setDefaultsOnInsert: true },
-    );
+    const existing = await PageContent.findOne({ where: { pageId } });
+    let page;
+    if (existing) {
+      page = await existing.update(updateData);
+    } else {
+      page = await PageContent.create({ pageId, ...updateData });
+    }
     console.log("✅ Page content updated");
     res.json({ success: true, page });
   } catch (err) {
@@ -1170,7 +1005,6 @@ app.post("/api/page-content/:pageId", async (req, res) => {
   }
 });
 
-// Upload image for page content
 app.post(
   "/api/page-content/:pageId/upload",
   upload.single("image"),
@@ -1183,36 +1017,33 @@ app.post(
 
       console.log(`📸 Page image upload: ${pageId}/${sectionId || field}`);
 
-      let updateQuery = {};
-      if (sectionId) {
-        // Add to a section's images array
-        const page = await PageContent.findOne({ pageId });
-        if (page) {
-          const section = page.sections.find((s) => s.sectionId === sectionId);
+      const page = await PageContent.findOne({ where: { pageId } });
+      if (page) {
+        if (sectionId) {
+          let sections = [...(page.sections || [])];
+          const section = sections.find((s) => s.sectionId === sectionId);
           if (section) {
-            section.images.push(imageUrl);
-            page.updatedAt = Date.now();
-            await page.save();
-            return res.json({ success: true, imageUrl, page });
+            section.images = [...(section.images || []), imageUrl];
+          } else {
+            sections.push({ sectionId, images: [imageUrl], title: "", subtitle: "", text: "", videos: [], items: [] });
           }
+          await page.update({ sections, updatedAt: new Date() });
+          return res.json({ success: true, imageUrl, page });
+        } else if (field === "heroImage") {
+          await page.update({ heroImage: imageUrl, updatedAt: new Date() });
+          return res.json({ success: true, imageUrl, page });
         }
-        // Upsert with new section
-        updateQuery = {
-          $push: { sections: { sectionId, images: [imageUrl] } },
-          $set: { updatedAt: Date.now() },
-        };
-      } else if (field === "heroImage") {
-        updateQuery = { $set: { heroImage: imageUrl, updatedAt: Date.now() } };
       } else {
-        return res.json({ success: true, imageUrl });
+        const sectionsData = sectionId ? [{ sectionId, images: [imageUrl], title: "", subtitle: "", text: "", videos: [], items: [] }] : [];
+        const heroImageData = field === "heroImage" ? imageUrl : "";
+        const newPage = await PageContent.create({
+          pageId,
+          sections: sectionsData,
+          heroImage: heroImageData
+        });
+        return res.json({ success: true, imageUrl, page: newPage });
       }
-
-      const updated = await PageContent.findOneAndUpdate(
-        { pageId },
-        updateQuery,
-        { new: true, upsert: true },
-      );
-      res.json({ success: true, imageUrl, page: updated });
+      res.json({ success: true, imageUrl });
     } catch (err) {
       console.error("❌ Page image upload error:", err);
       res.status(500).json({ error: "Upload failed" });
@@ -1220,25 +1051,25 @@ app.post(
   },
 );
 
-// Remove image from page section
 app.delete("/api/page-content/:pageId/image", async (req, res) => {
   try {
     const { pageId } = req.params;
     const { imageUrl, sectionId, field } = req.body;
     console.log(`🗑️ Removing page image: ${pageId}/${imageUrl}`);
 
-    const page = await PageContent.findOne({ pageId });
+    const page = await PageContent.findOne({ where: { pageId } });
     if (!page) return res.status(404).json({ error: "Page not found" });
 
     if (field === "heroImage") {
-      page.heroImage = "";
+      await page.update({ heroImage: "" });
     } else if (sectionId) {
-      const section = page.sections.find((s) => s.sectionId === sectionId);
-      if (section)
+      let sections = [...(page.sections || [])];
+      const section = sections.find((s) => s.sectionId === sectionId);
+      if (section) {
         section.images = section.images.filter((img) => img !== imageUrl);
+        await page.update({ sections });
+      }
     }
-    page.updatedAt = Date.now();
-    await page.save();
 
     res.json({ success: true, page });
   } catch (err) {
@@ -1248,7 +1079,6 @@ app.delete("/api/page-content/:pageId/image", async (req, res) => {
 });
 
 // ===== PAGE ROUTES =====
-// Serve root assets like Images, logo, etc. (Explicitly check extensions)
 app.get("/:file", (req, res, next) => {
   const fileName = req.params.file;
   const ext = fileName.split(".").pop().toLowerCase();
@@ -1263,7 +1093,6 @@ app.get("/:file", (req, res, next) => {
   next();
 });
 
-// Serve all .html files from the root directory
 app.get("/:page.html", (req, res) => {
   const filePath = path.join(__dirname, req.params.page + ".html");
   if (require("fs").existsSync(filePath)) {
@@ -1273,8 +1102,6 @@ app.get("/:page.html", (req, res) => {
   }
 });
 
-
-// Also serve plain names as .html (e.g. /about -> about.html)
 const commonPages = ["signin", "about", "contact", "user-dashboard", "reviews", "go", "join", "offers", "review"];
 commonPages.forEach(p => {
   app.get(`/${p}`, (req, res) => res.sendFile(path.join(__dirname, `${p}.html`)));
@@ -1287,8 +1114,6 @@ app.get("/", (req, res) => {
 app.get("/admin", (req, res) => {
   res.sendFile(path.join(__dirname, "admin.html"));
 });
-
-
 
 // ===== START SERVER =====
 app.listen(PORT, () => {
@@ -1306,7 +1131,7 @@ module.exports = app;
 // Handle graceful shutdown
 process.on("SIGINT", async () => {
   console.log("\n🛑 Shutting down server...");
-  await mongoose.connection.close();
-  console.log("✅ MongoDB connection closed");
+  await sequelize.close();
+  console.log("✅ MySQL connection closed");
   process.exit(0);
 });

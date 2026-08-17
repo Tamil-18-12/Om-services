@@ -1,49 +1,111 @@
-const mongoose = require('mongoose');
+const { DataTypes } = require("sequelize");
+const sequelize = require("../config/database");
 
-const bookingSchema = new mongoose.Schema({
-    email: { type: String, required: true },
-    serviceType: { type: String, required: true }, // e.g., 'Catering', 'Travels', 'Photography'
-    serviceName: { type: String, required: true }, // e.g., 'Banana Leaf', '54 Seater Bus'
-    name: { type: String, required: true },
-    age: { type: Number },
-    phone: { type: String, required: true },
-    address: { type: String },
-    date: { type: String, required: true },
-    guests: Number, // For catering
-    eventDuration: String, // For catering
-    mealType: String, // For catering
-    cateringStyle: String, // For catering (Banana Leaf / Buffet)
-    pickupLocation: String, // For travels
-    dropDestination: { type: String }, // For travels
-    travelDuration: { type: String }, // For travels
-    passengerCount: { type: Number }, // For travels
-    eventType: { type: String }, // For photography
-    photographyDuration: { type: String }, // For photography
-    sweetQuantity: { type: String }, // For sweets
-    functionTime: { type: String }, // For sweets
-    departureSlot: { type: String }, // For travels (Morning/Afternoon/Evening/Night)
-    
-    // NEW: Status tracking
-    status: { 
-        type: String, 
-        enum: ['Pending', 'Confirmed', 'Completed', 'Cancelled'],
-        default: 'Pending'
+const Booking = sequelize.define(
+  "Booking",
+  {
+    id: {
+      type: DataTypes.INTEGER,
+      primaryKey: true,
+      autoIncrement: true,
     },
-    
-    // NEW: Status history
-    statusHistory: [{
-        status: String,
-        changedAt: { type: Date, default: Date.now },
-        changedBy: String,
-        note: String
-    }],
-    
-    // NEW: Additional metadata
-    notes: { type: String }, // Admin notes
-    totalAmount: { type: Number }, // Optional pricing
-    
-    createdAt: { type: Date, default: Date.now },
-    updatedAt: { type: Date, default: Date.now }
-});
+    email: {
+      type: DataTypes.STRING,
+      allowNull: false,
+    },
+    serviceType: {
+      type: DataTypes.STRING,
+      allowNull: false,
+    },
+    serviceName: {
+      type: DataTypes.STRING,
+      allowNull: false,
+    },
+    name: {
+      type: DataTypes.STRING,
+      allowNull: false,
+    },
+    age: {
+      type: DataTypes.INTEGER,
+    },
+    phone: {
+      type: DataTypes.STRING,
+      allowNull: false,
+    },
+    address: {
+      type: DataTypes.TEXT,
+    },
+    date: {
+      type: DataTypes.STRING,
+      allowNull: false,
+    },
+    guests: {
+      type: DataTypes.INTEGER,
+    },
+    eventDuration: {
+      type: DataTypes.STRING,
+    },
+    mealType: {
+      type: DataTypes.STRING,
+    },
+    cateringStyle: {
+      type: DataTypes.STRING,
+    },
+    pickupLocation: {
+      type: DataTypes.STRING,
+    },
+    dropDestination: {
+      type: DataTypes.STRING,
+    },
+    travelDuration: {
+      type: DataTypes.STRING,
+    },
+    passengerCount: {
+      type: DataTypes.INTEGER,
+    },
+    eventType: {
+      type: DataTypes.STRING,
+    },
+    photographyDuration: {
+      type: DataTypes.STRING,
+    },
+    sweetQuantity: {
+      type: DataTypes.STRING,
+    },
+    functionTime: {
+      type: DataTypes.STRING,
+    },
+    departureSlot: {
+      type: DataTypes.STRING,
+    },
+    status: {
+      type: DataTypes.STRING,
+      defaultValue: "Pending",
+      validate: {
+        isIn: [["Pending", "Confirmed", "Completed", "Cancelled"]],
+      },
+    },
+    statusHistory: {
+      type: DataTypes.JSON,
+      defaultValue: [],
+    },
+    notes: {
+      type: DataTypes.TEXT,
+    },
+    totalAmount: {
+      type: DataTypes.DECIMAL(10, 2),
+    },
+    _id: {
+      type: DataTypes.VIRTUAL,
+      get() {
+        const idVal = this.getDataValue("id");
+        return idVal ? idVal.toString() : null;
+      },
+    },
+  },
+  {
+    tableName: "bookings",
+  }
+);
 
-module.exports = mongoose.model('Booking', bookingSchema);
+module.exports = Booking;

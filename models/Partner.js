@@ -1,47 +1,81 @@
-const mongoose = require('mongoose');
+const { DataTypes } = require("sequelize");
+const sequelize = require("../config/database");
 
-const partnerSchema = new mongoose.Schema({
-    category: { 
-        type: String, 
-        required: true,
-        enum: ['Catering', 'Travels', 'Photography', 'Sweets']
+const Partner = sequelize.define(
+  "Partner",
+  {
+    id: {
+      type: DataTypes.INTEGER,
+      primaryKey: true,
+      autoIncrement: true,
     },
-    
-    // Common Fields
-    name: { type: String, required: true },
-    mobile: { type: String, required: true },
-    email: { type: String, required: true },
-    address: { type: String, required: true },
-    details: { type: String }, // General description/details
-    
-    // Specific Fields (optional based on category)
-    teamSize: { type: String }, // Catering: "how much member you want"
-    menuItems: { type: String }, // Catering: "what you will have"
-    
-    vehicleModel: { type: String }, // Travels: "which model bus"
-    
-    cameraModel: { type: String }, // Photography: "camera model"
-    
-    sweetType: { type: String }, // Sweets: "which sweet"
-    
-    // Images
-    images: [{ type: String }], // Array of file paths
-    
-    // Admin Fields
-    status: { 
-        type: String, 
-        enum: ['Pending', 'Approved', 'Rejected'],
-        default: 'Pending' 
+    category: {
+      type: DataTypes.STRING,
+      allowNull: false,
+      validate: {
+        isIn: [["Catering", "Travels", "Photography", "Sweets"]],
+      },
     },
-    adminNote: { type: String, default: '' },
-    
-    createdAt: { type: Date, default: Date.now },
-    updatedAt: { type: Date, default: Date.now }
-});
+    name: {
+      type: DataTypes.STRING,
+      allowNull: false,
+    },
+    mobile: {
+      type: DataTypes.STRING,
+      allowNull: false,
+    },
+    email: {
+      type: DataTypes.STRING,
+      allowNull: false,
+    },
+    address: {
+      type: DataTypes.TEXT,
+      allowNull: false,
+    },
+    details: {
+      type: DataTypes.TEXT,
+    },
+    teamSize: {
+      type: DataTypes.STRING,
+    },
+    menuItems: {
+      type: DataTypes.TEXT,
+    },
+    vehicleModel: {
+      type: DataTypes.STRING,
+    },
+    cameraModel: {
+      type: DataTypes.STRING,
+    },
+    sweetType: {
+      type: DataTypes.STRING,
+    },
+    images: {
+      type: DataTypes.JSON,
+      defaultValue: [],
+    },
+    status: {
+      type: DataTypes.STRING,
+      defaultValue: "Pending",
+      validate: {
+        isIn: [["Pending", "Approved", "Rejected"]],
+      },
+    },
+    adminNote: {
+      type: DataTypes.TEXT,
+      defaultValue: "",
+    },
+    _id: {
+      type: DataTypes.VIRTUAL,
+      get() {
+        const idVal = this.getDataValue("id");
+        return idVal ? idVal.toString() : null;
+      },
+    },
+  },
+  {
+    tableName: "partners",
+  }
+);
 
-// Update the 'updatedAt' field before saving
-partnerSchema.pre('save', function() {
-    this.updatedAt = Date.now();
-});
-
-module.exports = mongoose.model('Partner', partnerSchema);
+module.exports = Partner;

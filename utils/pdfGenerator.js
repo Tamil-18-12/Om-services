@@ -5,7 +5,7 @@ const Booking = require('../models/Booking');
 exports.generateBookingPDF = async (req, res) => {
     try {
         const { id } = req.params;
-        const booking = await Booking.findById(id);
+        const booking = await Booking.findByPk(id);
 
         if (!booking) {
             return res.status(404).json({
@@ -18,7 +18,7 @@ exports.generateBookingPDF = async (req, res) => {
         const doc = new PDFDocument({ margin: 50 });
 
         // Set response headers
-        const filename = `Booking_${booking._id.toString().slice(-8).toUpperCase()}.pdf`;
+        const filename = `Booking_${booking.id.toString().padStart(6, '0')}.pdf`;
         res.setHeader('Content-Disposition', `attachment; filename="${filename}"`);
         res.setHeader('Content-Type', 'application/pdf');
 
@@ -47,7 +47,7 @@ exports.generateBookingPDF = async (req, res) => {
         // Booking ID and Status
         doc.fontSize(12)
            .fillColor('#666')
-           .text(`Booking ID: #${booking._id.toString().slice(-8).toUpperCase()}`, 50, doc.y)
+           .text(`Booking ID: #${booking.id.toString().padStart(6, '0')}`, 50, doc.y)
            .text(`Date: ${new Date().toLocaleDateString()}`, 400, doc.y - 15)
            .moveDown(0.5);
 
