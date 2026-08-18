@@ -6,14 +6,15 @@
       "use": "@vercel/node",
       "config": {
         "includeFiles": [
-          "*.html",
-          "public/**",
           "config/**",
           "models/**",
           "routes/**",
           "utils/**",
           "controllers/**",
-          "*.png"
+          "public/**",
+          "*.html",
+          "*.png",
+          "node_modules/mysql2/**"
         ]
       }
     }
